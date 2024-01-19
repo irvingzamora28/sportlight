@@ -98,7 +98,7 @@ pip install -r requirements.txt
 To generate a highlight video:
 
 ```
-python main.py --league NBA --date 2024-01-01
+python src/main.py --league NBA --date 2024-01-01
 ```
 
 ## Future Enhancements
