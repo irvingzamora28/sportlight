@@ -3,6 +3,7 @@ import json
 import os
 from datetime import datetime
 from crawler.nba_crawler import fetch_game_data
+from data_processor.game_data_processor import GameDataProcessor
 
 
 def main(league, date):
@@ -23,6 +24,19 @@ def main(league, date):
                 json.dump(game_data, file, ensure_ascii=False, indent=4)
 
             print(f"Data saved to {filename}")
+
+            # Process only the first game card as an example
+            if game_data:
+                first_game_card = game_data[0]
+                actions_path = ["gameCard", "actions"]
+                processor = GameDataProcessor([first_game_card])
+                actions = processor.get_actions(actions_path)
+                print(actions)
+                box_score_url = processor.get_box_score_url(actions)
+                print(f"Box score URL: {box_score_url}")
+
+            else:
+                print("No game data found")
 
         except Exception as e:
             print(f"Error: {e}")
