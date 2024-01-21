@@ -11,6 +11,7 @@ from common.player_data_utilities import PlayerDataUtils
 from common.video_downloader import VideoDownloader
 from common.utilities import get_files_in_directory
 from common.video_editor import VideoEditor
+from common.utilities import json_stats_to_html_image
 
 
 def init_directories():
@@ -145,9 +146,12 @@ def main(league, date):
                     },
                 ]
             }
-            VideoEditor.create_highlight_video(
-                video_paths, "output/final_highlight.mp4", stats_json
-            )
+            # Generate HTML table image from stats JSON
+            stats_image_path = "output/stats_image.png"
+            json_stats_to_html_image(stats_json, stats_image_path)
+            # VideoEditor.create_highlight_video(
+            #     video_paths, "output/final_highlight.mp4", stats_json
+            # )
             # game_data = fetch_game_data(date)
 
             # output_dir = "output/nba"

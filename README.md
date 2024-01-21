@@ -153,6 +153,41 @@ Save the file and exit the editor (in nano: Ctrl + X, then Y, and Enter).
 
 Modifying ImageMagick's security policy can have implications. Ensure you understand these changes and only apply them if necessary for your project's functionality.
 
+## Generating Table Images with imgkit and wkhtmltoimage
+
+For creating highlight videos with statistical overlays, our tool uses \`imgkit\`, a Python library, to convert HTML tables into images. \`imgkit\` requires \`wkhtmltoimage\`, which is a command-line tool to render HTML into images and PDFs.
+
+### Installation
+
+Follow these steps to set up \`imgkit\` and \`wkhtmltoimage\`:
+
+#### Install imgkit
+
+\`imgkit\` is a Python package and can be installed via pip. In your terminal, run:
+
+```bash
+pip install imgkit
+```
+
+#### Install wkhtmltoimage
+
+\`wkhtmltoimage\` needs to be installed separately.
+
+-   **For Ubuntu/Linux Mint**:
+
+```bash
+sudo apt-get install wkhtmltopdf
+```
+
+This command installs both \ `wkhtmltopdf\` and \`wkhtmltoimage\`.
+
+-   **For Other Operating Systems**:
+    Visit the [wkhtmltopdf downloads page](https://wkhtmltopdf.org/downloads.html) to download and install it for your operating system. Ensure that \`wkhtmltoimage\` is installed and accessible in your system's PATH.
+
+### Usage in the Project
+
+In our project, \`imgkit\` is used to convert JSON data representing player statistics into a visually appealing HTML table. This table is then rendered as an image and overlaid on the final video to display statistics.
+
 ## Usage
 
 To generate a highlight video:

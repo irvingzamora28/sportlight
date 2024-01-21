@@ -11,6 +11,7 @@ from selenium.common.exceptions import (
 )
 import os
 import time
+import imgkit
 
 
 def get_files_in_directory(directory):
@@ -192,3 +193,58 @@ def fetch_video_urls_from_table(
         driver.quit()
 
     return video_urls
+
+
+def json_stats_to_html_image(stats_json, output_image_path):
+    """
+    Converts player statistics JSON into a styled HTML table and then renders it as an image.
+
+    Parameters:
+        stats_json (dict): JSON object containing player statistics.
+        output_image_path (str): Path to save the generated image.
+    """
+    # HTML and CSS
+    html_content = """
+    <html>
+    <head>
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: Arial, sans-serif;
+        color: #333;
+      }
+      th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+      }
+      th {
+        background-color: #4CAF50;
+        color: white;
+      }
+      tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+      tr:hover {
+        background-color: #ddd;
+      }
+    </style>
+    </head>
+    <body>
+    <table>
+    <tr><th>Name</th><th>Minutes</th><th>Points</th><th>Rebounds</th><th>Assists</th><th>Steals</th><th>Blocks</th><th>Turnovers</th></tr>
+    """
+
+    for player in stats_json["players"]:
+        html_content += (
+            f"<tr><td>{player['nameI']}</td><td>{player['statistics']['minutes']}</td>"
+        )
+        html_content += f"<td>{player['statistics']['points']}</td><td>{player['statistics']['reboundsTotal']}</td>"
+        html_content += f"<td>{player['statistics']['assists']}</td><td>{player['statistics']['steals']}</td>"
+        html_content += f"<td>{player['statistics']['blocks']}</td><td>{player['statistics']['turnovers']}</td></tr>"
+
+    html_content += "</table></body></html>"
+
+    # Convert HTML to Image
+    imgkit.from_string(html_content, output_image_path)
