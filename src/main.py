@@ -9,6 +9,8 @@ from data_processor.nba.game_data_processor import GameDataProcessor
 from data_processor.nba.box_score_data_processor import BoxScoreDataProcessor
 from common.player_data_utilities import PlayerDataUtils
 from common.video_downloader import VideoDownloader
+from common.utilities import get_files_in_directory
+from common.video_editor import VideoEditor
 
 
 def init_directories():
@@ -23,79 +25,91 @@ def main(league, date):
     if league.upper() == "NBA":
         try:
             init_directories()
-            game_data = fetch_game_data(date)
+            directory = "output/nba/videos"
+            video_paths = get_files_in_directory(directory)
+            # for video_path in video_paths:
+            #     print(video_path)
+            stats_texts = [
+                "Stat 1",
+                "Stat 2",
+                "Stat 3",
+            ]
+            VideoEditor.create_highlight_video(
+                video_paths, "output/final_highlight.mp4", stats_texts
+            )
+            # game_data = fetch_game_data(date)
 
-            output_dir = "output/nba"
+            # output_dir = "output/nba"
 
-            # Generate filename with timestamp
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"{output_dir}/raw/nba_games_{date}.json"
+            # # Generate filename with timestamp
+            # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            # filename = f"{output_dir}/raw/nba_games_{date}.json"
 
-            # Write data to file
-            with open(filename, "w", encoding="utf-8") as file:
-                json.dump(game_data, file, ensure_ascii=False, indent=4)
+            # # Write data to file
+            # with open(filename, "w", encoding="utf-8") as file:
+            #     json.dump(game_data, file, ensure_ascii=False, indent=4)
 
-            print(f"Data saved to {filename}")
+            # print(f"Data saved to {filename}")
 
-            # Process only the first game card as an example
-            if game_data:
-                first_game_card = game_data[0]
-                actions_path = ["gameCard", "actions"]
-                game_data_processor = GameDataProcessor([first_game_card])
-                actions = game_data_processor.get_actions(actions_path)
-                tags_path = [
-                    "gameCard",
-                    "hero_configuration",
-                    "gameRecap",
-                    "taxonomy",
-                    "tags",
-                ]
-                game_tags = game_data_processor.get_game_tags(tags_path)
-                game_id = game_data_processor.get_game_id()
-                print(f"Game ID: {game_id}")
-                game_slug = game_data_processor.get_game_slug(
-                    [
-                        "gameCard",
-                        "hero_configuration",
-                        "gameRecap",
-                        "taxonomy",
-                        "games",
-                    ]
-                )
-                print(f"Game slug: {game_slug}")
-                box_score_url = game_data_processor.get_box_score_url(actions)
-                box_score_data = fetch_box_score_data(box_score_url)
-                filename = f"{output_dir}/raw/nba_box_score_{date}.json"
-                # Write data to file
-                with open(filename, "w", encoding="utf-8") as file:
-                    json.dump(box_score_data, file, ensure_ascii=False, indent=4)
-                print(f"Data saved to {filename}")
+            # # Process only the first game card as an example
+            # if game_data:
+            #     first_game_card = game_data[0]
+            #     actions_path = ["gameCard", "actions"]
+            #     game_data_processor = GameDataProcessor([first_game_card])
+            #     actions = game_data_processor.get_actions(actions_path)
+            #     tags_path = [
+            #         "gameCard",
+            #         "hero_configuration",
+            #         "gameRecap",
+            #         "taxonomy",
+            #         "tags",
+            #     ]
+            #     game_tags = game_data_processor.get_game_tags(tags_path)
+            #     game_id = game_data_processor.get_game_id()
+            #     print(f"Game ID: {game_id}")
+            #     game_slug = game_data_processor.get_game_slug(
+            #         [
+            #             "gameCard",
+            #             "hero_configuration",
+            #             "gameRecap",
+            #             "taxonomy",
+            #             "games",
+            #         ]
+            #     )
+            #     print(f"Game slug: {game_slug}")
+            #     box_score_url = game_data_processor.get_box_score_url(actions)
+            #     box_score_data = fetch_box_score_data(box_score_url)
+            #     filename = f"{output_dir}/raw/nba_box_score_{date}.json"
+            #     # Write data to file
+            #     with open(filename, "w", encoding="utf-8") as file:
+            #         json.dump(box_score_data, file, ensure_ascii=False, indent=4)
+            #     print(f"Data saved to {filename}")
 
-                game_data_processor = BoxScoreDataProcessor(box_score_data)
-                key_players = game_data_processor.get_key_players(game_tags)
-                lead_stats_players = game_data_processor.get_lead_stats_players()
-                all_key_players = PlayerDataUtils.combine_players(
-                    "personId", key_players, lead_stats_players
-                )
+            #     game_data_processor = BoxScoreDataProcessor(box_score_data)
+            #     key_players = game_data_processor.get_key_players(game_tags)
+            #     lead_stats_players = game_data_processor.get_lead_stats_players()
+            #     all_key_players = PlayerDataUtils.combine_players(
+            #         "personId", key_players, lead_stats_players
+            #     )
 
-                for key_player in all_key_players:
-                    print(
-                        f"Fetching player video for {key_player['firstName']} {key_player['familyName']}"
-                    )
-                    video_urls = fetch_game_player_video_data(
-                        game_id, key_player["personId"], key_player["teamId"]
-                    )
-                    print(f"Video URLs:")
-                    for video_url in video_urls:
-                        print(video_url)
-                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                        VideoDownloader.download_video(
-                            video_url,
-                            f"{output_dir}/videos",
-                            f"{key_player['firstName']}_{key_player['familyName']}_{timestamp}.mp4",
-                        )
-            else:
-                print("No game data found")
+            #     for key_player in all_key_players:
+            #         print(
+            #             f"Fetching player video for {key_player['firstName']} {key_player['familyName']}"
+            #         )
+            #         video_urls = fetch_game_player_video_data(
+            #             game_id, key_player["personId"], key_player["teamId"]
+            #         )
+            #         print(f"Video URLs:")
+            #         for video_url in video_urls:
+            #             print(video_url)
+            #             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            #             VideoDownloader.download_video(
+            #                 video_url,
+            #                 f"{output_dir}/videos",
+            #                 f"{key_player['firstName']}_{key_player['familyName']}_{timestamp}.mp4",
+            #             )
+            # else:
+            #     print("No game data found")
 
         except Exception as e:
             print(f"Error: {e}")

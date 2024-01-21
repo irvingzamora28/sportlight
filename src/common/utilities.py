@@ -9,8 +9,27 @@ from selenium.common.exceptions import (
     NoSuchElementException,
     WebDriverException,
 )
-
+import os
 import time
+
+
+def get_files_in_directory(directory):
+    """
+    Gets all the files in the specified directory with their absolute paths.
+
+    Parameters:
+        directory (str): The directory path to list files from.
+
+    Returns:
+        list: A list of absolute file paths in the directory.
+    """
+    files = []
+    for filename in os.listdir(directory):
+        full_path = os.path.join(directory, filename)
+        if os.path.isfile(full_path):
+            absolute_path = os.path.abspath(full_path)
+            files.append(absolute_path)
+    return files
 
 
 def fetch_html_content(url):
