@@ -93,6 +93,12 @@ cd sportlight
 pip install -r requirements.txt
 ```
 
+## WebDriver Setup for Selenium
+
+This project uses Selenium, which requires a WebDriver to interface with the chosen browser.
+
+If you are using Google Chrome, download ChromeDriver from https://chromedriver.chromium.org/downloads. Ensure that you download the version that matches your Chrome browser version. Extract the downloaded file and place the `chromedriver` executable in a directory that is in your system's PATH.
+
 ## Usage
 
 To generate a highlight video:

@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from dotenv import load_dotenv
 from common.utilities import fetch_html_content
+from common.utilities import fetch_dynamic_html_content
 
 load_dotenv()
 
@@ -88,14 +89,14 @@ def fetch_game_player_video_data(
 
     print(f"Fetching player video data from: {url}")
     try:
-        response = fetch_html_content(url)
-        if response:
+        html_content = fetch_dynamic_html_content(url, "vjs_video_3_html5_api")
+        if html_content:
             print("Fetched player video HTML content successfully.")
-            # Write response to a file with the timestamp
+            # Write html_content to a file with the timestamp
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"player-video-response-{timestamp}.html"
+            filename = f"player-video-html_content-{timestamp}.html"
             with open(filename, "w", encoding="utf-8") as file:
-                file.write(response.text)
+                file.write(html_content)
 
             return filename
         else:
