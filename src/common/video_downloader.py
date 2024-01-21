@@ -22,13 +22,14 @@ class VideoDownloader:
         return None
 
     @staticmethod
-    def download_video(video_url, output_directory="videos"):
+    def download_video(video_url, output_directory="videos", filename=None):
         """
         Downloads the video from the given URL.
 
         Parameters:
             video_url (str): URL of the video to be downloaded.
             output_directory (str): Directory to save the downloaded video.
+            filename (str, optional): Custom filename for the downloaded video. If None, the filename is derived from the URL.
 
         Returns:
             str: Filename of the downloaded video, or None if the download fails.
@@ -36,7 +37,11 @@ class VideoDownloader:
         if not os.path.exists(output_directory):
             os.makedirs(output_directory)
 
-        local_filename = os.path.join(output_directory, video_url.split("/")[-1])
+        # Use the specified filename or derive from the URL
+        local_filename = os.path.join(
+            output_directory, filename if filename else video_url.split("/")[-1]
+        )
+
         try:
             with requests.get(video_url, stream=True) as r:
                 r.raise_for_status()

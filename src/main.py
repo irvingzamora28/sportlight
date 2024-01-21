@@ -15,7 +15,6 @@ def init_directories():
     # Create output/nba directory if it doesn't exist
     output_dir = "output"
     os.makedirs(os.path.join(output_dir, "nba"), exist_ok=True)
-    # Create output/nba/raw directory if it doesn't exist
     os.makedirs(os.path.join(output_dir, "nba", "raw"), exist_ok=True)
     os.makedirs(os.path.join(output_dir, "tests"), exist_ok=True)
 
@@ -89,7 +88,12 @@ def main(league, date):
                 print(f"Video URLs:")
                 for video_url in video_urls:
                     print(video_url)
-                    VideoDownloader.download_video(video_url, f"{output_dir}/videos")
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    VideoDownloader.download_video(
+                        video_url,
+                        f"{output_dir}/videos",
+                        f"{first_key_player['firstName']}_{first_key_player['familyName']}_{timestamp}.mp4",
+                    )
             else:
                 print("No game data found")
 
