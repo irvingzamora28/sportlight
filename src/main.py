@@ -3,6 +3,7 @@ import json
 import os
 from datetime import datetime
 from crawler.nba_crawler import fetch_game_data
+from crawler.nba_crawler import fetch_box_score_data
 from data_processor.game_data_processor import GameDataProcessor
 
 
@@ -11,9 +12,9 @@ def main(league, date):
         try:
             game_data = fetch_game_data(date)
 
-            # Create output directory if it doesn't exist
+            # Create output/nba directory if it doesn't exist
             output_dir = "output"
-            os.makedirs(output_dir, exist_ok=True)
+            os.makedirs(os.path.join(output_dir, "nba"), exist_ok=True)
 
             # Generate filename with timestamp
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -31,9 +32,14 @@ def main(league, date):
                 actions_path = ["gameCard", "actions"]
                 processor = GameDataProcessor([first_game_card])
                 actions = processor.get_actions(actions_path)
-                print(actions)
                 box_score_url = processor.get_box_score_url(actions)
                 print(f"Box score URL: {box_score_url}")
+                box_score_data = fetch_box_score_data(box_score_url)
+                filename = f"{output_dir}/nba_box_score_{timestamp}.json"
+                # Write data to file
+                with open(filename, "w", encoding="utf-8") as file:
+                    json.dump(box_score_data, file, ensure_ascii=False, indent=4)
+                print(f"Data saved to {filename}")
 
             else:
                 print("No game data found")
