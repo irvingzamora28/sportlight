@@ -85,6 +85,7 @@ def fetch_box_score_data(url):
     props = data.get("props", {})
     page_props = props.get("pageProps", {})
     game_data = page_props.get("game", {})
+    play_by_play_data = page_props.get("playByPlay", {})
 
     game_info = {
         "gameId": game_data.get("gameId"),
@@ -94,6 +95,7 @@ def fetch_box_score_data(url):
         "homeTeamPlayers": game_data.get("homeTeamPlayers"),
         "awayTeamPlayers": game_data.get("awayTeamPlayers"),
         "postgameCharts": game_data.get("postgameCharts"),
+        "playByPlay": play_by_play_data,
     }
     box_score_data.append({"game": game_info})
     return box_score_data
