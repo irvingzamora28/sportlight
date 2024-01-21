@@ -3,6 +3,13 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import (
+    TimeoutException,
+    NoSuchElementException,
+    WebDriverException,
+)
+
 import time
 
 
@@ -60,8 +67,70 @@ def fetch_dynamic_html_content(url, element_id, timeout=10, additional_wait_time
         # Get the page source after dynamic content is loaded
         html_content = driver.page_source
         return html_content
+    except TimeoutException:
+        print(f"Timeout while waiting for the element with ID {element_id} to load.")
+        driver.quit()
+        return []
+    except WebDriverException as e:
+        print(f"Web driver error: {e}")
+        driver.quit()
+        return []
     except Exception as e:
         print(f"Error fetching dynamic content: {e}")
         return None
     finally:
         driver.quit()
+
+
+def fetch_video_urls_from_table(
+    page_url, table_class, row_class, video_id, wait_time=5
+):
+    """
+    Fetches video URLs from a table on a web page using Selenium, with error handling.
+
+    Parameters:
+        page_url (str): URL of the page to load.
+        table_class (str): Class of the table containing the video links.
+        row_class (str): Class of the rows in the table to interact with.
+        video_id (str): ID of the video element where the src is updated.
+        wait_time (int): Time to wait for the video to load after each click.
+
+    Returns:
+        list: A list of video URLs, or an empty list if an error occurs.
+    """
+    driver = webdriver.Chrome()
+
+    try:
+        driver.get(page_url)
+        WebDriverWait(driver, wait_time).until(
+            EC.presence_of_element_located((By.CLASS_NAME, table_class))
+        )
+    except TimeoutException:
+        print(f"Timeout while waiting for the table with class {table_class} to load.")
+        driver.quit()
+        return []
+    except WebDriverException as e:
+        print(f"Web driver error: {e}")
+        driver.quit()
+        return []
+    print("Here")
+    video_urls = []
+    try:
+        video_rows = driver.find_elements(
+            By.CSS_SELECTOR, f".{row_class}[data-has-video='true']"
+        )
+        for row in video_rows:
+            ActionChains(driver).move_to_element(row).click().perform()
+            time.sleep(1)  # Wait for video to load
+
+            video_url = driver.find_element(By.ID, video_id).get_attribute("src")
+            if video_url:
+                video_urls.append(video_url)
+    except NoSuchElementException as e:
+        print(f"Error finding elements: {e}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        driver.quit()
+
+    return video_urls

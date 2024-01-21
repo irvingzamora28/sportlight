@@ -6,6 +6,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from common.utilities import fetch_html_content
 from common.utilities import fetch_dynamic_html_content
+from common.utilities import fetch_video_urls_from_table
 
 load_dotenv()
 
@@ -65,7 +66,7 @@ def fetch_game_player_video_data(
         end_range (int): End range for the query. Defaults to 28800.
 
     Returns:
-        str: HTML content of the player video data page, or None if no data found.
+        list: A list of video URLs extracted from the player stats page HTML.
     """
     season = os.getenv("NBA_SEASON")
     season_type = os.getenv("NBA_SEASONTYPE")
@@ -87,18 +88,13 @@ def fetch_game_player_video_data(
         f"TeamID={team_id}&flag=3&sct=plot&section=game"
     )
 
-    print(f"Fetching player video data from: {url}")
     try:
-        html_content = fetch_dynamic_html_content(url, "vjs_video_3_html5_api")
-        if html_content:
-            print("Fetched player video HTML content successfully.")
-            # Write html_content to a file with the timestamp
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"player-video-html_content-{timestamp}.html"
-            with open(filename, "w", encoding="utf-8") as file:
-                file.write(html_content)
-
-            return filename
+        video_urls = fetch_video_urls_from_table(
+            url, "Crom_table__p1iZz", "EventsTable_row__Gs8B9", "vjs_video_3_html5_api"
+        )
+        print(f"Found {len(video_urls)} video URLs")
+        if video_urls:
+            return video_urls
         else:
             print("Failed to fetch player video HTML content.")
             return None
