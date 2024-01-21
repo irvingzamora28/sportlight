@@ -37,6 +37,19 @@ class BoxScoreDataProcessor:
             away_players = JSONParser.extract_value(
                 game, ["game", "awayTeam", "players"]
             )
+
+            home_team_id = JSONParser.extract_value(
+                game, ["game", "homeTeam", "teamId"]
+            )
+            away_team_id = JSONParser.extract_value(
+                game, ["game", "awayTeam", "teamId"]
+            )
+            # Before combining players, assign a new property called team_id
+            for player in home_players:
+                player["teamId"] = home_team_id
+            for player in away_players:
+                player["teamId"] = away_team_id
+
             # Combine both player lists
             all_players = (
                 home_players + away_players if home_players and away_players else []
@@ -85,6 +98,18 @@ class BoxScoreDataProcessor:
                 away_player_stats.get("playerAstLeaderId"),
                 away_player_stats.get("playerBlkLeaderId"),
             }
+
+            home_team_id = JSONParser.extract_value(
+                game, ["game", "homeTeam", "teamId"]
+            )
+            away_team_id = JSONParser.extract_value(
+                game, ["game", "awayTeam", "teamId"]
+            )
+            # Before combining players, assign a new property called team_id
+            for player in home_players:
+                player["teamId"] = home_team_id
+            for player in away_players:
+                player["teamId"] = away_team_id
 
             # Combine both player lists
             all_players = (home_players or []) + (away_players or [])

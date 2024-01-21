@@ -19,6 +19,12 @@ class GameDataProcessor:
         """
         self.game_data = game_data_json
 
+    def get_game_id(self):
+        """
+        Returns the id of the first game.
+        """
+        return JSONParser.extract_value(self.game_data[0], ["gameCard", "game_id"])
+
     def download_video(video_url, output_path):
         response = requests.get(video_url, stream=True)
         if response.status_code == 200:

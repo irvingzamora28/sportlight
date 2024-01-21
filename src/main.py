@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from crawler.nba_crawler import fetch_game_data
 from crawler.nba_crawler import fetch_box_score_data
+from crawler.nba_crawler import fetch_game_player_video_data
 from data_processor.nba.game_data_processor import GameDataProcessor
 from data_processor.nba.box_score_data_processor import BoxScoreDataProcessor
 from common.player_data_utilities import PlayerDataUtils
@@ -42,6 +43,8 @@ def main(league, date):
                     "tags",
                 ]
                 game_tags = game_data_processor.get_game_tags(tags_path)
+                game_id = game_data_processor.get_game_id()
+                print(f"Game ID: {game_id}")
                 box_score_url = game_data_processor.get_box_score_url(actions)
                 box_score_data = fetch_box_score_data(box_score_url)
                 filename = f"{output_dir}/nba_box_score_{date}.json"
@@ -56,8 +59,14 @@ def main(league, date):
                 all_key_players = PlayerDataUtils.combine_players(
                     "personId", key_players, lead_stats_players
                 )
-                for player in all_key_players:
-                    print(player["firstName"] + " " + player["familyName"])
+
+                first_key_player = all_key_players[0]
+                print(
+                    f"Fetching player video for {first_key_player['firstName']} {first_key_player['familyName']}"
+                )
+                filename = fetch_game_player_video_data(
+                    game_id, first_key_player["personId"], first_key_player["teamId"]
+                )
 
             else:
                 print("No game data found")

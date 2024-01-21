@@ -50,6 +50,62 @@ def fetch_game_data(date):
     return games_data
 
 
+def fetch_game_player_video_data(
+    game_id, player_id, team_id, context_measure="FGM", end_range=28800
+):
+    """
+    Fetches the player video data for a given player ID.
+
+    Parameters:
+        game_id (str): The Game ID to fetch video data for.
+        player_id (str): The player ID to fetch video data for.
+        team_id (str): The team ID associated with the player.
+        context_measure (str): Context measure for the query. Defaults to 'FGM'.
+        end_range (int): End range for the query. Defaults to 28800.
+
+    Returns:
+        str: HTML content of the player video data page, or None if no data found.
+    """
+    season = os.getenv("NBA_SEASON")
+    season_type = os.getenv("NBA_SEASONTYPE")
+
+    if not season or not season_type:
+        raise ValueError(
+            "Season and SeasonType must be set in the environment variables."
+        )
+
+    base_url = os.getenv("NBA_BASE_URL")
+    if not base_url:
+        raise ValueError("NBA_BASE_URL is not set in the environment variables.")
+
+    url = (
+        f"{base_url}/stats/events?"
+        f"CFID=&CFPARAMS=&ContextMeasure={context_measure}&EndPeriod=0&"
+        f"EndRange={end_range}&GameID={game_id}&PlayerID={player_id}&RangeType=0&"
+        f"Season={season}&SeasonType={season_type}&StartPeriod=0&StartRange=0&"
+        f"TeamID={team_id}&flag=3&sct=plot&section=game"
+    )
+
+    print(f"Fetching player video data from: {url}")
+    try:
+        response = fetch_html_content(url)
+        if response:
+            print("Fetched player video HTML content successfully.")
+            # Write response to a file with the timestamp
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"player-video-response-{timestamp}.html"
+            with open(filename, "w", encoding="utf-8") as file:
+                file.write(response.text)
+
+            return filename
+        else:
+            print("Failed to fetch player video HTML content.")
+            return None
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+        return None
+
+
 def fetch_box_score_data(url):
     """
     Fetches the box score data from the given URL.
