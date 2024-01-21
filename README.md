@@ -99,6 +99,60 @@ This project uses Selenium, which requires a WebDriver to interface with the cho
 
 If you are using Google Chrome, download ChromeDriver from https://chromedriver.chromium.org/downloads. Ensure that you download the version that matches your Chrome browser version. Extract the downloaded file and place the `chromedriver` executable in a directory that is in your system's PATH.
 
+## Setting Up ImageMagick for MoviePy
+
+### Installation
+
+MoviePy relies on ImageMagick for certain operations, such as creating text clips. Follow these steps to install ImageMagick and configure it for use with MoviePy:
+
+Linux Mint (and Ubuntu-based distributions)
+
+1. Install ImageMagick: Open a terminal and run:
+
+```
+sudo apt update
+sudo apt install imagemagick
+```
+
+2. Verify Installation: Confirm that ImageMagick is installed correctly:
+
+```
+convert --version
+```
+
+### Configuring ImageMagick Security Policy
+
+If you encounter an error related to ImageMagick's security policy when using MoviePy (e.g., convert-im6.q16: attempt to perform an operation not allowed by the security policy), follow these steps:
+
+Edit the Policy File:
+Open ImageMagick's policy file in a text editor with root privileges:
+
+```
+sudo nano /etc/ImageMagick-6/policy.xml
+```
+
+For ImageMagick-7, the path might be /etc/ImageMagick-7/policy.xml.
+
+Modify the Policy:
+Locate the line:
+
+```
+<policy domain="path" rights="none" pattern="@*" />
+```
+
+Comment it out by adding <!-- and -->:
+
+```
+<!-- <policy domain="path" rights="none" pattern="@*" /> -->
+```
+
+Save and Exit:
+Save the file and exit the editor (in nano: Ctrl + X, then Y, and Enter).
+
+### Security Consideration
+
+Modifying ImageMagick's security policy can have implications. Ensure you understand these changes and only apply them if necessary for your project's functionality.
+
 ## Usage
 
 To generate a highlight video:
