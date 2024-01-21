@@ -78,22 +78,22 @@ def main(league, date):
                     "personId", key_players, lead_stats_players
                 )
 
-                first_key_player = all_key_players[0]
-                print(
-                    f"Fetching player video for {first_key_player['firstName']} {first_key_player['familyName']}"
-                )
-                video_urls = fetch_game_player_video_data(
-                    game_id, first_key_player["personId"], first_key_player["teamId"]
-                )
-                print(f"Video URLs:")
-                for video_url in video_urls:
-                    print(video_url)
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    VideoDownloader.download_video(
-                        video_url,
-                        f"{output_dir}/videos",
-                        f"{first_key_player['firstName']}_{first_key_player['familyName']}_{timestamp}.mp4",
+                for key_player in all_key_players:
+                    print(
+                        f"Fetching player video for {key_player['firstName']} {key_player['familyName']}"
                     )
+                    video_urls = fetch_game_player_video_data(
+                        game_id, key_player["personId"], key_player["teamId"]
+                    )
+                    print(f"Video URLs:")
+                    for video_url in video_urls:
+                        print(video_url)
+                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                        VideoDownloader.download_video(
+                            video_url,
+                            f"{output_dir}/videos",
+                            f"{key_player['firstName']}_{key_player['familyName']}_{timestamp}.mp4",
+                        )
             else:
                 print("No game data found")
 
