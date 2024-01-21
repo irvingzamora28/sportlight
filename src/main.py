@@ -4,7 +4,9 @@ import os
 from datetime import datetime
 from crawler.nba_crawler import fetch_game_data
 from crawler.nba_crawler import fetch_box_score_data
-from data_processor.game_data_processor import GameDataProcessor
+from data_processor.nba.game_data_processor import GameDataProcessor
+from data_processor.nba.box_score_data_processor import BoxScoreDataProcessor
+from common.player_data_utilities import PlayerDataUtils
 
 
 def main(league, date):
@@ -18,7 +20,7 @@ def main(league, date):
 
             # Generate filename with timestamp
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"{output_dir}/nba_games_{timestamp}.json"
+            filename = f"{output_dir}/nba_games_{date}.json"
 
             # Write data to file
             with open(filename, "w", encoding="utf-8") as file:
@@ -30,16 +32,32 @@ def main(league, date):
             if game_data:
                 first_game_card = game_data[0]
                 actions_path = ["gameCard", "actions"]
-                processor = GameDataProcessor([first_game_card])
-                actions = processor.get_actions(actions_path)
-                box_score_url = processor.get_box_score_url(actions)
-                print(f"Box score URL: {box_score_url}")
+                game_data_processor = GameDataProcessor([first_game_card])
+                actions = game_data_processor.get_actions(actions_path)
+                tags_path = [
+                    "gameCard",
+                    "hero_configuration",
+                    "gameRecap",
+                    "taxonomy",
+                    "tags",
+                ]
+                game_tags = game_data_processor.get_game_tags(tags_path)
+                box_score_url = game_data_processor.get_box_score_url(actions)
                 box_score_data = fetch_box_score_data(box_score_url)
-                filename = f"{output_dir}/nba_box_score_{timestamp}.json"
+                filename = f"{output_dir}/nba_box_score_{date}.json"
                 # Write data to file
                 with open(filename, "w", encoding="utf-8") as file:
                     json.dump(box_score_data, file, ensure_ascii=False, indent=4)
                 print(f"Data saved to {filename}")
+
+                game_data_processor = BoxScoreDataProcessor(box_score_data)
+                key_players = game_data_processor.get_key_players(game_tags)
+                lead_stats_players = game_data_processor.get_lead_stats_players()
+                all_key_players = PlayerDataUtils.combine_players(
+                    "personId", key_players, lead_stats_players
+                )
+                for player in all_key_players:
+                    print(player["firstName"] + " " + player["familyName"])
 
             else:
                 print("No game data found")
