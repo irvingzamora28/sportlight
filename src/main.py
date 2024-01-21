@@ -149,9 +149,9 @@ def main(league, date):
             # Generate HTML table image from stats JSON
             stats_image_path = "output/stats_image.png"
             json_stats_to_html_image(stats_json, stats_image_path)
-            # VideoEditor.create_highlight_video(
-            #     video_paths, "output/final_highlight.mp4", stats_json
-            # )
+            VideoEditor.create_highlight_video(
+                video_paths, "output/final_highlight.mp4", stats_json
+            )
             # game_data = fetch_game_data(date)
 
             # output_dir = "output/nba"
