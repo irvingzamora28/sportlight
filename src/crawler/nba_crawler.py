@@ -92,7 +92,6 @@ def fetch_game_player_video_data(
         video_urls = fetch_video_urls_from_table(
             url, "Crom_table__p1iZz", "EventsTable_row__Gs8B9", "vjs_video_3_html5_api"
         )
-        print(f"Found {len(video_urls)} video URLs")
         if video_urls:
             return video_urls
         else:

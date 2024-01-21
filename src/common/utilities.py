@@ -83,7 +83,7 @@ def fetch_dynamic_html_content(url, element_id, timeout=10, additional_wait_time
 
 
 def fetch_video_urls_from_table(
-    page_url, table_class, row_class, video_id, wait_time=5
+    page_url, table_class, row_class, video_id, wait_time=5, additional_wait_time=5
 ):
     """
     Fetches video URLs from a table on a web page using Selenium, with error handling.
@@ -102,9 +102,32 @@ def fetch_video_urls_from_table(
 
     try:
         driver.get(page_url)
+        # Handling the cookie banner
+        try:
+            WebDriverWait(driver, wait_time).until(
+                EC.presence_of_element_located(
+                    (By.CLASS_NAME, "onetrust-close-btn-handler")
+                )
+            )
+            close_cookie_banner_button = driver.find_element(
+                By.CLASS_NAME, "onetrust-close-btn-handler"
+            )
+            close_cookie_banner_button.click()
+        except TimeoutException:
+            print(
+                "No cookie banner found or timeout occurred while waiting for cookie banner."
+            )
+        except NoSuchElementException:
+            print("Cookie banner close button not found.")
+        except Exception as e:
+            print(f"Error while handling cookie banner: {e}")
+
+        # Wait for the table to load after handling cookie banner
         WebDriverWait(driver, wait_time).until(
             EC.presence_of_element_located((By.CLASS_NAME, table_class))
         )
+        # Optional: wait a bit more because sometimes the video takes time to load after clicking cookie banner
+        time.sleep(additional_wait_time)
     except TimeoutException:
         print(f"Timeout while waiting for the table with class {table_class} to load.")
         driver.quit()
@@ -113,16 +136,18 @@ def fetch_video_urls_from_table(
         print(f"Web driver error: {e}")
         driver.quit()
         return []
-    print("Here")
+
     video_urls = []
     try:
         video_rows = driver.find_elements(
             By.CSS_SELECTOR, f".{row_class}[data-has-video='true']"
         )
         for row in video_rows:
-            ActionChains(driver).move_to_element(row).click().perform()
-            time.sleep(1)  # Wait for video to load
-
+            clickable_element = row.find_element(
+                By.CSS_SELECTOR, ".EventsTable_play__dtRDi"
+            )
+            ActionChains(driver).move_to_element(clickable_element).click().perform()
+            time.sleep(1)
             video_url = driver.find_element(By.ID, video_id).get_attribute("src")
             if video_url:
                 video_urls.append(video_url)
