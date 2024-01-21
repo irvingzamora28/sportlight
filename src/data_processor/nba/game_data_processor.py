@@ -25,37 +25,6 @@ class GameDataProcessor:
         """
         return JSONParser.extract_value(self.game_data[0], ["gameCard", "game_id"])
 
-    def download_video(video_url, output_path):
-        response = requests.get(video_url, stream=True)
-        if response.status_code == 200:
-            with open(output_path, "wb") as file:
-                for chunk in response.iter_content(chunk_size=8192):
-                    if chunk:  # filter out keep-alive new chunks
-                        file.write(chunk)
-            return True
-        return False
-
-    def get_video_html(self, video_properties_path):
-        """
-        Fetches the HTML content of the first available video URL found in the game data.
-
-        Returns:
-            str: HTML content of the video page, or None if not found.
-        """
-        for game in self.game_data:
-            video_url = JSONParser.extract_value(game, video_properties_path)
-
-            if video_url:
-                response = requests.get(video_url)
-                if response.status_code == 200:
-                    return response.text
-                else:
-                    print(f"Failed to fetch video page: {video_url}")
-                    return None
-            else:
-                print("Video URL not found in the game data.")
-                return None
-
     def get_actions(self, actions_properties_path):
         """
         Fetches a list of action items from the game data

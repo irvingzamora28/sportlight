@@ -8,20 +8,29 @@ from crawler.nba_crawler import fetch_game_player_video_data
 from data_processor.nba.game_data_processor import GameDataProcessor
 from data_processor.nba.box_score_data_processor import BoxScoreDataProcessor
 from common.player_data_utilities import PlayerDataUtils
+from common.video_downloader import VideoDownloader
+
+
+def init_directories():
+    # Create output/nba directory if it doesn't exist
+    output_dir = "output"
+    os.makedirs(os.path.join(output_dir, "nba"), exist_ok=True)
+    # Create output/nba/raw directory if it doesn't exist
+    os.makedirs(os.path.join(output_dir, "nba", "raw"), exist_ok=True)
+    os.makedirs(os.path.join(output_dir, "tests"), exist_ok=True)
 
 
 def main(league, date):
     if league.upper() == "NBA":
         try:
+            init_directories()
             game_data = fetch_game_data(date)
 
-            # Create output/nba directory if it doesn't exist
-            output_dir = "output"
-            os.makedirs(os.path.join(output_dir, "nba"), exist_ok=True)
+            output_dir = "output/nba"
 
             # Generate filename with timestamp
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"{output_dir}/nba_games_{date}.json"
+            filename = f"{output_dir}/raw/nba_games_{date}.json"
 
             # Write data to file
             with open(filename, "w", encoding="utf-8") as file:
@@ -47,7 +56,7 @@ def main(league, date):
                 print(f"Game ID: {game_id}")
                 box_score_url = game_data_processor.get_box_score_url(actions)
                 box_score_data = fetch_box_score_data(box_score_url)
-                filename = f"{output_dir}/nba_box_score_{date}.json"
+                filename = f"{output_dir}/raw/nba_box_score_{date}.json"
                 # Write data to file
                 with open(filename, "w", encoding="utf-8") as file:
                     json.dump(box_score_data, file, ensure_ascii=False, indent=4)
@@ -64,10 +73,13 @@ def main(league, date):
                 print(
                     f"Fetching player video for {first_key_player['firstName']} {first_key_player['familyName']}"
                 )
-                filename = fetch_game_player_video_data(
+                video_urls = fetch_game_player_video_data(
                     game_id, first_key_player["personId"], first_key_player["teamId"]
                 )
-
+                print(f"Video URLs:")
+                for video_url in video_urls:
+                    print(video_url)
+                    VideoDownloader.download_video(video_url, f"{output_dir}/videos")
             else:
                 print("No game data found")
 
