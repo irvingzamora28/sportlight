@@ -96,7 +96,11 @@ def fetch_game_player_video_data(
 
     try:
         video_urls = fetch_video_urls_from_table(
-            url, "Crom_table__p1iZz", "EventsTable_row__Gs8B9", "vjs_video_3_html5_api"
+            url,
+            "Crom_table__p1iZz",
+            "EventsTable_row__Gs8B9",
+            "vjs_video_3_html5_api",
+            ["dunk"],
         )
         if video_urls:
             return video_urls

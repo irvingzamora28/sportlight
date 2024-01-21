@@ -83,7 +83,13 @@ def fetch_dynamic_html_content(url, element_id, timeout=10, additional_wait_time
 
 
 def fetch_video_urls_from_table(
-    page_url, table_class, row_class, video_id, wait_time=5, additional_wait_time=5
+    page_url,
+    table_class,
+    row_class,
+    video_id,
+    keywords=None,
+    wait_time=5,
+    additional_wait_time=5,
 ):
     """
     Fetches video URLs from a table on a web page using Selenium, with error handling.
@@ -93,7 +99,9 @@ def fetch_video_urls_from_table(
         table_class (str): Class of the table containing the video links.
         row_class (str): Class of the rows in the table to interact with.
         video_id (str): ID of the video element where the src is updated.
-        wait_time (int): Time to wait for the video to load after each click.
+        keywords (list[str], optional): List of keywords to filter the rows.
+        wait_time (int): Time in seconds to wait for the video to load after each click.
+        additional_wait_time (int): Additional time to wait after the element is found, in seconds.
 
     Returns:
         list: A list of video URLs, or an empty list if an error occurs.
@@ -143,6 +151,12 @@ def fetch_video_urls_from_table(
             By.CSS_SELECTOR, f".{row_class}[data-has-video='true']"
         )
         for row in video_rows:
+            # Check for keywords if provided
+            if keywords and not any(
+                keyword.lower() in row.text.lower() for keyword in keywords
+            ):
+                continue  # Skip this row if no keywords match
+
             clickable_element = row.find_element(
                 By.CSS_SELECTOR, ".EventsTable_play__dtRDi"
             )
