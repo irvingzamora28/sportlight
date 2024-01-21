@@ -27,15 +27,126 @@ def main(league, date):
             init_directories()
             directory = "output/nba/videos"
             video_paths = get_files_in_directory(directory)
-            # for video_path in video_paths:
-            #     print(video_path)
-            stats_texts = [
-                "Stat 1",
-                "Stat 2",
-                "Stat 3",
-            ]
+            stats_json = {
+                "players": [
+                    {
+                        "personId": 1628384,
+                        "firstName": "OG",
+                        "familyName": "Anunoby",
+                        "nameI": "O. Anunoby",
+                        "statistics": {
+                            "minutes": "35:01",
+                            "reboundsOffensive": 3,
+                            "reboundsDefensive": 3,
+                            "reboundsTotal": 6,
+                            "assists": 1,
+                            "steals": 2,
+                            "blocks": 0,
+                            "turnovers": 1,
+                            "foulsPersonal": 6,
+                            "points": 17,
+                            "plusMinusPoints": 19,
+                        },
+                    },
+                    {
+                        "personId": 203944,
+                        "firstName": "Julius",
+                        "familyName": "Randle",
+                        "nameI": "J. Randle",
+                        "statistics": {
+                            "minutes": "36:19",
+                            "reboundsOffensive": 3,
+                            "reboundsDefensive": 6,
+                            "reboundsTotal": 9,
+                            "assists": 0,
+                            "steals": 0,
+                            "blocks": 0,
+                            "turnovers": 6,
+                            "foulsPersonal": 5,
+                            "points": 39,
+                            "plusMinusPoints": 2,
+                        },
+                    },
+                    {
+                        "personId": 1628392,
+                        "firstName": "Isaiah",
+                        "familyName": "Hartenstein",
+                        "nameI": "I. Hartenstein",
+                        "statistics": {
+                            "minutes": "39:09",
+                            "reboundsOffensive": 4,
+                            "reboundsDefensive": 5,
+                            "reboundsTotal": 9,
+                            "assists": 3,
+                            "steals": 3,
+                            "blocks": 3,
+                            "turnovers": 1,
+                            "foulsPersonal": 3,
+                            "points": 7,
+                            "plusMinusPoints": 10,
+                        },
+                    },
+                    {
+                        "personId": 1628973,
+                        "firstName": "Jalen",
+                        "familyName": "Brunson",
+                        "nameI": "J. Brunson",
+                        "statistics": {
+                            "minutes": "40:40",
+                            "reboundsOffensive": 0,
+                            "reboundsDefensive": 4,
+                            "reboundsTotal": 4,
+                            "assists": 14,
+                            "steals": 1,
+                            "blocks": 0,
+                            "turnovers": 2,
+                            "foulsPersonal": 4,
+                            "points": 16,
+                            "plusMinusPoints": 16,
+                        },
+                    },
+                    {
+                        "personId": 1628978,
+                        "firstName": "Donte",
+                        "familyName": "DiVincenzo",
+                        "nameI": "D. DiVincenzo",
+                        "statistics": {
+                            "minutes": "25:37",
+                            "reboundsOffensive": 1,
+                            "reboundsDefensive": 3,
+                            "reboundsTotal": 4,
+                            "assists": 2,
+                            "steals": 1,
+                            "blocks": 1,
+                            "turnovers": 1,
+                            "foulsPersonal": 0,
+                            "points": 15,
+                            "plusMinusPoints": 15,
+                        },
+                    },
+                    {
+                        "personId": 1628404,
+                        "firstName": "Josh",
+                        "familyName": "Hart",
+                        "nameI": "J. Hart",
+                        "statistics": {
+                            "minutes": "28:49",
+                            "reboundsOffensive": 2,
+                            "reboundsDefensive": 9,
+                            "reboundsTotal": 11,
+                            "assists": 2,
+                            "steals": 0,
+                            "blocks": 0,
+                            "turnovers": 1,
+                            "foulsPersonal": 2,
+                            "points": 8,
+                            "plusMinusPoints": -12,
+                        },
+                    },
+                ]
+            }
             VideoEditor.create_highlight_video(
-                video_paths, "output/final_highlight.mp4", stats_texts
+                video_paths, "output/final_highlight.mp4", stats_json
             )
             # game_data = fetch_game_data(date)
 
