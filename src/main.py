@@ -54,6 +54,16 @@ def main(league, date):
                 game_tags = game_data_processor.get_game_tags(tags_path)
                 game_id = game_data_processor.get_game_id()
                 print(f"Game ID: {game_id}")
+                game_slug = game_data_processor.get_game_slug(
+                    [
+                        "gameCard",
+                        "hero_configuration",
+                        "gameRecap",
+                        "taxonomy",
+                        "games",
+                    ]
+                )
+                print(f"Game slug: {game_slug}")
                 box_score_url = game_data_processor.get_box_score_url(actions)
                 box_score_data = fetch_box_score_data(box_score_url)
                 filename = f"{output_dir}/raw/nba_box_score_{date}.json"

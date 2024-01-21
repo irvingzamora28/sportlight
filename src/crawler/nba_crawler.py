@@ -19,6 +19,12 @@ def fetch_game_data(date):
     url = f"{base_url}/games/?date={date}"
     try:
         response = fetch_html_content(url)
+        if response:
+            print("Fetched games HTML content successfully.")
+            # Write response to a file with the date
+            filename = f"nba-games-{date}.html"
+            with open(f"output/tests/{filename}", "w", encoding="utf-8") as file:
+                file.write(response.text)
     except Exception as e:
         raise ConnectionError(f"Failed to fetch data from {url}")
 

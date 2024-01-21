@@ -55,6 +55,23 @@ class GameDataProcessor:
                 print("Actions not found in the game data.")
                 return []
 
+    def get_game_slug(self, slug_properties_path):
+        """
+        Fetches the game slug from the game data
+
+        Returns:
+        str: A slug string for this game, or empty string if not found
+        """
+        for game in self.game_data:
+            slug = JSONParser.extract_value(game, slug_properties_path)
+            if slug:
+                # This returns this {'0022300451': 'MIN @ NYK (0022300451)'}, we need to return 'MIN@NYK'
+                slug = list(slug.values())[0].split("(")[0].replace(" ", "")
+                return slug
+            else:
+                print("Game slug not found in the game data.")
+                return ""
+
     def get_box_score_url(self, actions):
         """
         Extracts the resourceUrl for the action titled "Box Score".
