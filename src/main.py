@@ -196,6 +196,12 @@ def main(league, date):
                 play_by_play_url = game_data_processor.get_play_by_play_url(actions)
                 play_by_play_data = fetch_game_play_by_play_data(play_by_play_url)
                 print(f"Play-by-play data fetched {play_by_play_data}")
+                for video_url in play_by_play_data:
+                    print(video_url)
+                    VideoDownloader.download_video(
+                        video_url,
+                        f"{output_dir}/videos/{game_slug}",
+                    )
                 # box_score_data = fetch_box_score_data(box_score_url)
                 # filename = f"{output_dir}/raw/nba_box_score_{date}.json"
                 # # Write data to file

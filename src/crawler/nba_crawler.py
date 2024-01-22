@@ -179,9 +179,25 @@ def fetch_game_play_by_play_data(url):
     url = f"{base_url}{url}"
     print(f"Fetching play-by-play data from: {url}")
     try:
-        play_by_play_data = fetch_play_videos_from_play_by_play_table(url)
+        play_by_play_data = fetch_play_videos_from_play_by_play_table(
+            url,
+            "GamePlayByPlay_hasPlays__LgdnK",
+            "GamePlayByPlayRow_article__asoO2",
+            "GamePlayByPlay_tab__BboK4",
+            ["dunk"],
+        )
         if play_by_play_data:
-            return play_by_play_data
+            play_by_play_urls = []
+            for event_url in play_by_play_data:
+                video_urls = fetch_video_urls_from_table(
+                    event_url,
+                    "Crom_table__p1iZz",
+                    "EventsTable_row__Gs8B9",
+                    "vjs_video_3_html5_api",
+                )
+                if video_urls:
+                    play_by_play_urls += video_urls
+            return play_by_play_urls
         else:
             print("Failed to fetch play-by-play data.")
             return None
