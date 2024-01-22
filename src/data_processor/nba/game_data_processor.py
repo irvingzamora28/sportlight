@@ -86,3 +86,18 @@ class GameDataProcessor:
             actions, "title", "Box Score", ["resourceLocator", "resourceUrl"]
         )
         return box_score_url
+
+    def get_play_by_play_url(self, actions):
+        """
+        Extracts the resourceUrl for the action titled "Game Details" and then forms the play by play url.
+
+        Parameters:
+            actions (list): A list of action items, each containing a title and resourceLocator.
+
+        Returns:
+            str: The resourceUrl of the "Game Details" action, or None if not found.
+        """
+        play_by_play_url = JSONParser.find_value_in_list(
+            actions, "title", "Game Details", ["resourceLocator", "resourceUrl"]
+        )
+        return f"{play_by_play_url}/play-by-play"

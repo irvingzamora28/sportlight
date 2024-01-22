@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from common.utilities import fetch_html_content
 from common.utilities import fetch_dynamic_html_content
 from common.utilities import fetch_video_urls_from_table
+from common.utilities import fetch_play_videos_from_play_by_play_table
 
 load_dotenv()
 
@@ -161,3 +162,29 @@ def fetch_box_score_data(url):
     }
     box_score_data.append({"game": game_info})
     return box_score_data
+
+
+def fetch_game_play_by_play_data(url):
+    """
+    Fetches the play-by-play data from the given URL.
+    Parameters:
+    url (str): The URL to fetch the play-by-play data from.
+    Returns:
+    list: A list of play-by-play events extracted from the box score page HTML.
+    """
+    base_url = os.getenv("NBA_BASE_URL")
+    if not base_url:
+        raise ValueError("NBA_BASE_URL is not set in the environment variables.")
+
+    url = f"{base_url}{url}"
+    print(f"Fetching play-by-play data from: {url}")
+    try:
+        play_by_play_data = fetch_play_videos_from_play_by_play_table(url)
+        if play_by_play_data:
+            return play_by_play_data
+        else:
+            print("Failed to fetch play-by-play data.")
+            return None
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+        return None

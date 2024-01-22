@@ -195,6 +195,126 @@ def fetch_video_urls_from_table(
     return video_urls
 
 
+def fetch_play_videos_from_play_by_play_table(
+    page_url,
+    table_class="GamePlayByPlay_hasPlays__LgdnK",
+    row_class="GamePlayByPlayRow_article__asoO2",
+    button_all_class="GamePlayByPlay_tab__BboK4",
+    keywords=None,
+    wait_time=5,
+    additional_wait_time=5,
+):
+    """
+    Fetches the video events from a play-by-play table on a web page using Selenium, with error handling.
+    The function first waits for the table to load, then clicks the "All" tab if present.
+    It then iterates through the rows, checking for matching keywords if provided.
+    For each row, it moves and extracts the url to the event video from the href attribute of the anchor element.
+    It handles any exceptions and returns a list of video urls.
+
+    Parameters:
+    page_url (str): URL of the page to load.
+    table_class (str): Class of the table containing the video links.
+    row_class (str): Class of the rows in the table to interact with.
+    button_all_class (str): Class of the "All" tab button, if present.
+    keywords (list[str], optional): List of keywords to filter the rows.
+    wait_time (int): Time in seconds to wait for elements to load.
+    additional_wait_time (int): Additional time to wait after elements are found, in seconds.
+    """
+    driver = webdriver.Chrome()
+
+    try:
+        driver.get(page_url)
+        # Handling the cookie banner
+        try:
+            WebDriverWait(driver, wait_time).until(
+                EC.presence_of_element_located(
+                    (By.CLASS_NAME, "onetrust-close-btn-handler")
+                )
+            )
+            close_cookie_banner_button = driver.find_element(
+                By.CLASS_NAME, "onetrust-close-btn-handler"
+            )
+            close_cookie_banner_button.click()
+        except TimeoutException:
+            print(
+                "No cookie banner found or timeout occurred while waiting for cookie banner."
+            )
+        except NoSuchElementException:
+            print("Cookie banner close button not found.")
+        except Exception as e:
+            print(f"Error while handling cookie banner: {e}")
+
+        # Wait for the table to load after handling cookie banner
+        WebDriverWait(driver, wait_time).until(
+            EC.presence_of_element_located((By.CLASS_NAME, table_class))
+        )
+        # Optional: wait a bit more because sometimes the video takes time to load after clicking cookie banner
+        time.sleep(additional_wait_time)
+        # Looking for this button
+        # <button type="button" data-is-active-tab="false" class="GamePlayByPlay_tab__BboK4" style="width: 20%;">ALL</button>
+        try:
+            # Wait for the buttons to be present
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_all_elements_located(
+                    (By.CSS_SELECTOR, f"button.{button_all_class}")
+                )
+            )
+
+            # Find and click the specific button with the text "ALL"
+            all_button = driver.find_element(
+                By.XPATH,
+                f"//button[contains(@class, '{button_all_class}') and contains(text(), 'ALL')]",
+            )
+            print("Clicking ALL button")
+            all_button.click()
+        except NoSuchElementException:
+            print("Button with text 'ALL' not found")
+        except TimeoutException:
+            print("Timeout waiting for buttons to be present")
+        except WebDriverException as e:
+            print(f"Web driver error: {e}")
+        # Optional: wait a bit more because sometimes the table with all the events takes time to load after clicking the "ALL" button
+        time.sleep(additional_wait_time)
+    except TimeoutException:
+        print(f"Timeout while waiting for the table with class {table_class} to load.")
+        driver.quit()
+        return []
+    except WebDriverException as e:
+        print(f"Web driver error: {e}")
+        driver.quit()
+        return []
+    video_play_by_play_event_urls = []
+    try:
+        print("Looking for rows...")
+        video_rows = driver.find_elements(By.CSS_SELECTOR, f".{row_class}")
+        print(f"Iterating through {len(video_rows)} rows...")
+        for row in video_rows:
+            # Check for keywords if provided
+            if keywords and not any(
+                keyword.lower() in row.text.lower() for keyword in keywords
+            ):
+                continue  # Skip this row if no keywords match
+
+            try:
+                video_event = row.find_element(
+                    By.CSS_SELECTOR, ".GamePlayByPlayRow_statEvent__Ru8Pr"
+                )
+                video_event_url = video_event.get_attribute("href")
+                if video_event_url:
+                    video_play_by_play_event_urls.append(video_event_url)
+            except NoSuchElementException:
+                print("Video event not found in this row.")
+            except Exception as e:
+                print(f"An error occurred while processing a row: {e}")
+
+    except Exception as e:
+        print(f"An error occurred during row iteration: {e}")
+    finally:
+        driver.quit()
+
+    return video_play_by_play_event_urls
+
+
 def json_stats_to_html_image(stats_json, output_image_path):
     """
     Converts player statistics JSON into a styled HTML table and then renders it as an image.
