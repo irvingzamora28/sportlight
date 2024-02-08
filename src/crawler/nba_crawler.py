@@ -164,11 +164,12 @@ def fetch_box_score_data(url):
     return box_score_data
 
 
-def fetch_game_play_by_play_data(url):
+def fetch_game_play_by_play_data(url, keywords=None):
     """
     Fetches the play-by-play data from the given URL.
     Parameters:
     url (str): The URL to fetch the play-by-play data from.
+    keywords (list): A list of keywords to filter the play-by-play events. Defaults to None.
     Returns:
     list: A list of play-by-play events extracted from the box score page HTML.
     """
@@ -184,7 +185,7 @@ def fetch_game_play_by_play_data(url):
             "GamePlayByPlay_hasPlays__LgdnK",
             "GamePlayByPlayRow_article__asoO2",
             "GamePlayByPlay_tab__BboK4",
-            ["dunk"],
+            keywords,
         )
         if play_by_play_data:
             play_by_play_urls = []
