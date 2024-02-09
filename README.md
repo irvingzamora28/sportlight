@@ -13,10 +13,32 @@ Sportlight is an innovative project aimed at generating highlight videos from va
 
 ## Setup and Requirements
 
-Python 3.x
+-   Python 3.x
+-   Libraries: requests, BeautifulSoup, dotenv, moviepy (for video editing)
+-   .env file for API and base URLs
+-   FFmpeg for video processing (See FFmpeg installation guide below)
 
-Libraries: requests, BeautifulSoup, dotenv, moviepy (for video editing)
-.env file for API and base URLs
+## FFmpeg Installation
+
+Sportlight requires FFmpeg for video processing tasks. Follow these steps to install FFmpeg on your system:
+
+### Linux Mint (Debian Edition)
+
+1. Open the Terminal.
+2. Update your package list:
+    ```
+    sudo apt-get update
+    ```
+3. Install FFmpeg:
+    ```
+    sudo apt-get install ffmpeg
+    ```
+4. Verify the installation by checking the version of FFmpeg:
+    ```
+    ffmpeg -version
+    ```
+
+For other operating systems, please visit the [FFmpeg official website](https://ffmpeg.org/download.html) for installation instructions.
 
 ## Project Structure
 

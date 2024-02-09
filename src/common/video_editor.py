@@ -5,8 +5,9 @@ from moviepy.editor import (
     ImageClip,
 )
 from common.utilities import json_stats_to_html_image
-
+import ffmpeg
 import traceback
+from common.logger import logger
 
 
 class VideoEditor:
@@ -46,18 +47,28 @@ class VideoEditor:
                     stats_away_team_json, stats_away_team_image_path
                 )
 
+            video_paths.sort()
             clips = []
 
+            # Resize intro video to size of game clips
+            sample_game_clip = VideoFileClip(video_paths[0])
+            width, height = sample_game_clip.size
+            logger.console(f"Width: {width}, Height: {height}")
+
+            input_video_path = "resources/video/intro.mp4"
+            output_video_path = "resources/video/intro_correct_size.mp4"
+
+            resize_video(input_video_path, output_video_path, width, height)
+
             # Get the intro video
-            intro_clip = VideoFileClip("resources/video/intro.mp4")
+            intro_clip = VideoFileClip("resources/video/intro_correct_size.mp4")
             audio = AudioFileClip("resources/audio/intro.mp3").audio_fadeout(5)
             clips.append(intro_clip.set_audio(audio))
 
             # Process videos
             # Before processing the videos, order the paths in alphabetical order to make sure they are in the right time sequence
-            video_paths.sort()
             for videopath in video_paths:
-                print(f"Processing video: {videopath}")
+                logger.console(f"Processing video: {videopath}")
                 videofilename = videopath.split("/")[-1]
                 # Keep only the ones that start with a number and and with .mp4 (These are the videos previously downloaded)
                 if videofilename[0].isnumeric() and videofilename.endswith(".mp4"):
@@ -85,5 +96,9 @@ class VideoEditor:
                 f"{output_path}/final_highlight.mp4", codec="libx264", fps=30
             )
         except Exception as e:
-            print(f"An error occurred: {e}")
+            logger.error(f"An error occurred: {e}")
             traceback.print_exc()
+
+
+def resize_video(input_path, output_path, width, height):
+    (ffmpeg.input(input_path).filter("scale", width, height).output(output_path).run())
