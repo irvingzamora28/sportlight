@@ -15,18 +15,19 @@ from common.video_editor import VideoEditor
 from common.utilities import json_stats_to_html_image
 
 
-def init_directories():
+def init_directories(date):
     # Create output/nba directory if it doesn't exist
     output_dir = "output"
     os.makedirs(os.path.join(output_dir, "nba"), exist_ok=True)
     os.makedirs(os.path.join(output_dir, "nba", "raw"), exist_ok=True)
+    os.makedirs(os.path.join(output_dir, "nba", "videos", date), exist_ok=True)
     os.makedirs(os.path.join(output_dir, "tests"), exist_ok=True)
 
 
 def main(league, date):
     if league.upper() == "NBA":
         try:
-            init_directories()
+            init_directories(date)
             game_data = fetch_game_data(date)
 
             output_dir = "output/nba"
