@@ -41,8 +41,17 @@ class VideoEditor:
                     stats_away_team_json, stats_away_team_image_path
                 )
 
+            clips = []
             # Process videos
-            clips = [VideoFileClip(video_path) for video_path in video_paths]
+            # Before processing the videos, order the paths in alphabetical order to make sure they are in the right time sequence
+            video_paths.sort()
+            for videopath in video_paths:
+                print(f"Processing video: {videopath}")
+                videofilename = videopath.split("/")[-1]
+                # Keep only the ones that start with a number and and with .mp4 (These are the videos previously downloaded)
+                if videofilename[0].isnumeric() and videofilename.endswith(".mp4"):
+                    # Add filtered paths to clips list
+                    clips.append(VideoFileClip(videopath))
 
             if stats_home_team_image_path and stats_away_team_image_path:
                 # Create an ImageClip with the stats image
