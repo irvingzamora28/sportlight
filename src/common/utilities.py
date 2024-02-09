@@ -317,8 +317,8 @@ def fetch_play_videos_from_play_by_play_table(
                 logger.console(f"Adding event URL: {video_event_page_url}")
                 # Clean data
                 video_event_title = regex.sub(r"\(.*\)", "", video_event_title.strip())
-                # Remove everything after the "/" in the video_event_pos
-                video_event_pos = video_event_pos.split("/")[0].strip()
+                # Remove everything after the "/" in the video_event_pos and make sure its 3 digits
+                video_event_pos = video_event_pos.split("/")[0].strip().zfill(3)
                 # Remove from title everything inside parenthesis
                 if video_event_page_url:
                     video_event_data = {
