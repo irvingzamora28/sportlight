@@ -13,6 +13,7 @@ from common.video_downloader import VideoDownloader
 from common.utilities import get_files_in_directory
 from common.video_editor import VideoEditor
 from common.utilities import json_stats_to_html_image
+from common.logger import logger
 
 
 def init_directories(date):
@@ -40,7 +41,7 @@ def main(league, date):
             with open(filename, "w", encoding="utf-8") as file:
                 json.dump(game_data, file, ensure_ascii=False, indent=4)
 
-            print(f"Data saved to {filename}")
+            logger.console(f"Data saved to {filename}")
 
             # Process only the first game card as an example
             if game_data:
@@ -57,7 +58,7 @@ def main(league, date):
                 ]
                 game_tags = game_data_processor.get_game_tags(tags_path)
                 game_id = game_data_processor.get_game_id()
-                print(f"Game ID: {game_id}")
+                logger.console(f"Game ID: {game_id}")
                 game_slug = game_data_processor.get_game_slug(
                     [
                         "gameCard",
@@ -67,31 +68,35 @@ def main(league, date):
                         "games",
                     ]
                 )
-                print(f"Game slug: {game_slug}")
+                logger.console(f"Game slug: {game_slug}")
                 play_by_play_url = game_data_processor.get_play_by_play_url(actions)
                 play_by_play_data = fetch_game_play_by_play_data(
                     play_by_play_url, ["reverse"]
                 )
-                print(f"Play-by-play data fetched {play_by_play_data}")
-                for video_url in play_by_play_data:
-                    print(video_url)
-                    VideoDownloader.download_video(
-                        video_url,
-                        f"{output_dir}/videos/{game_slug}",
-                    )
-                box_score_url = game_data_processor.get_box_score_url(actions)
-                box_score_data = fetch_box_score_data(box_score_url)
-                filename = f"{output_dir}/raw/nba_box_score_{date}.json"
-                # # Write data to file
-                with open(filename, "w", encoding="utf-8") as file:
-                    json.dump(box_score_data, file, ensure_ascii=False, indent=4)
-                print(f"Data saved to {filename}")
 
-                directory = f"output/nba/videos/{game_slug}"
-                video_paths = get_files_in_directory(directory)
-                VideoEditor.create_highlight_video(
-                    video_paths, f"{output_dir}/videos/{game_slug}", box_score_data
-                )
+                for event_data in play_by_play_data:
+                    for event_data_video_url in event_data.get("video_urls", []):
+                        logger.console(
+                            f"Starting download play-by-play event video url: {event_data_video_url}"
+                        )
+                        VideoDownloader.download_video(
+                            event_data_video_url,
+                            f"{output_dir}/videos/{game_slug}",
+                            f"{event_data['pos']}_{event_data['clock']}_{event_data['title']}.mp4",
+                        )
+                # box_score_url = game_data_processor.get_box_score_url(actions)
+                # box_score_data = fetch_box_score_data(box_score_url)
+                # filename = f"{output_dir}/raw/nba_box_score_{date}.json"
+                # # # Write data to file
+                # with open(filename, "w", encoding="utf-8") as file:
+                #     json.dump(box_score_data, file, ensure_ascii=False, indent=4)
+                # logger.console(f"Data saved to {filename}")
+
+                # directory = f"output/nba/videos/{game_slug}"
+                # video_paths = get_files_in_directory(directory)
+                # VideoEditor.create_highlight_video(
+                #     video_paths, f"{output_dir}/videos/{game_slug}", box_score_data
+                # )
 
                 # game_data_processor = BoxScoreDataProcessor(box_score_data)
                 # key_players = game_data_processor.get_key_players(game_tags)
@@ -101,15 +106,15 @@ def main(league, date):
                 # )
 
                 # for key_player in all_key_players:
-                #     print(
+                #     logger.console(
                 #         f"Fetching player video for {key_player['firstName']} {key_player['familyName']}"
                 #     )
                 #     video_urls = fetch_game_player_video_data(
                 #         game_id, key_player["personId"], key_player["teamId"]
                 #     )
-                #     print(f"Video URLs:")
+                #     logger.console(f"Video URLs:")
                 #     for video_url in video_urls:
-                #         print(video_url)
+                #         logger.console(video_url)
                 #         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 #         VideoDownloader.download_video(
                 #             video_url,
@@ -117,12 +122,12 @@ def main(league, date):
                 #             f"{key_player['firstName']}_{key_player['familyName']}_{timestamp}.mp4",
                 #         )
             else:
-                print("No game data found")
+                logger.console("No game data found")
 
         except Exception as e:
-            print(f"Error: {e}")
+            logger.error(f"Error: {e}")
     else:
-        print(f"Currently, we only support NBA. You entered: {league}")
+        logger.console(f"Currently, we only support NBA. You entered: {league}")
 
 
 if __name__ == "__main__":

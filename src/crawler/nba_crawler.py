@@ -8,6 +8,7 @@ from common.utilities import fetch_html_content
 from common.utilities import fetch_dynamic_html_content
 from common.utilities import fetch_video_urls_from_table
 from common.utilities import fetch_play_videos_from_play_by_play_table
+from common.logger import logger
 
 load_dotenv()
 
@@ -188,17 +189,16 @@ def fetch_game_play_by_play_data(url, keywords=None):
             keywords,
         )
         if play_by_play_data:
-            play_by_play_urls = []
-            for event_url in play_by_play_data:
+            for event_data in play_by_play_data:
                 video_urls = fetch_video_urls_from_table(
-                    event_url,
+                    event_data["page_url"],
                     "Crom_table__p1iZz",
                     "EventsTable_row__Gs8B9",
                     "vjs_video_3_html5_api",
                 )
                 if video_urls:
-                    play_by_play_urls += video_urls
-            return play_by_play_urls
+                    event_data["video_urls"] = video_urls
+            return play_by_play_data
         else:
             print("Failed to fetch play-by-play data.")
             return None

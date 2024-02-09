@@ -1,4 +1,6 @@
+import regex
 import requests
+from common.logger import logger
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -209,7 +211,7 @@ def fetch_play_videos_from_play_by_play_table(
     The function first waits for the table to load, then clicks the "All" tab if present.
     It then iterates through the rows, checking for matching keywords if provided.
     For each row, it moves and extracts the url to the event video from the href attribute of the anchor element.
-    It handles any exceptions and returns a list of video urls.
+    It handles any exceptions and returns a list of video data includinig url, text and timestamp.
 
     Parameters:
     page_url (str): URL of the page to load.
@@ -283,7 +285,7 @@ def fetch_play_videos_from_play_by_play_table(
         print(f"Web driver error: {e}")
         driver.quit()
         return []
-    video_play_by_play_event_urls = []
+    video_play_by_play_event_data = []
     try:
         print("Looking for rows...")
         video_rows = driver.find_elements(By.CSS_SELECTOR, f".{row_class}")
@@ -299,9 +301,33 @@ def fetch_play_videos_from_play_by_play_table(
                 video_event = row.find_element(
                     By.CSS_SELECTOR, ".GamePlayByPlayRow_statEvent__Ru8Pr"
                 )
-                video_event_url = video_event.get_attribute("href")
-                if video_event_url:
-                    video_play_by_play_event_urls.append(video_event_url)
+                video_event_page_url = video_event.get_attribute("href")
+                video_event_clock = row.find_element(
+                    By.CSS_SELECTOR, ".GamePlayByPlayRow_clockElement__LfzHV"
+                ).text
+                video_event_pos = row.find_element(
+                    By.CSS_SELECTOR, ".GamePlayByPlayRow_descBlock__By8pv"
+                ).get_attribute("data-pos")
+                video_event_title = row.find_element(
+                    By.CSS_SELECTOR, ".GamePlayByPlayRow_descBlock__By8pv"
+                ).get_attribute("data-text")
+                logger.console(
+                    f"{video_event_clock} {video_event_title} | Pos: {video_event_pos}"
+                )
+                logger.console(f"Adding event URL: {video_event_page_url}")
+                # Clean data
+                video_event_title = regex.sub(r"\(.*\)", "", video_event_title.strip())
+                # Remove everything after the "/" in the video_event_pos
+                video_event_pos = video_event_pos.split("/")[0].strip()
+                # Remove from title everything inside parenthesis
+                if video_event_page_url:
+                    video_event_data = {
+                        "pos": video_event_pos,
+                        "title": video_event_title,
+                        "clock": video_event_clock,
+                        "page_url": video_event_page_url,
+                    }
+                    video_play_by_play_event_data.append(video_event_data)
             except NoSuchElementException:
                 print("Video event not found in this row.")
             except Exception as e:
@@ -312,7 +338,7 @@ def fetch_play_videos_from_play_by_play_table(
     finally:
         driver.quit()
 
-    return video_play_by_play_event_urls
+    return video_play_by_play_event_data
 
 
 def json_stats_to_html_image(stats_json, output_image_path):
