@@ -31,7 +31,7 @@ def init_directories(date):
     os.makedirs(os.path.join(OUTPUT_DIR, TESTS_DIR), exist_ok=True)
 
 
-def process_game_data(game_data, date):
+def process_game_data(game_data, date, keywords):
     first_game_card = game_data[0]
     actions_path = ["gameCard", "actions"]
     game_data_processor = GameDataProcessor([first_game_card])
@@ -57,7 +57,8 @@ def process_game_data(game_data, date):
     )
     logger.console(f"Game slug: {game_slug}")
     play_by_play_url = game_data_processor.get_play_by_play_url(actions)
-    play_by_play_data = fetch_game_play_by_play_data(play_by_play_url, ["reverse"])
+    logger.console(f"Looking for keywords in play by play: {keywords}")
+    play_by_play_data = fetch_game_play_by_play_data(play_by_play_url, keywords)
 
     for event_data in play_by_play_data:
         for event_data_video_url in event_data.get("video_urls", []):
@@ -86,21 +87,21 @@ def process_game_data(game_data, date):
     )
 
 
-def handle_nba(league, date):
+def handle_nba(league, date, keywords):
     try:
         init_directories(date)
         game_data = fetch_game_data(date)
         if game_data:
-            process_game_data(game_data, date)
+            process_game_data(game_data, date, keywords)
         else:
             logger.console("No game data found")
     except Exception as e:
         logger.error(f"Error processing {league} data: {e}")
 
 
-def main(league, date):
+def main(league, date, keywords):
     if league.upper() == "NBA":
-        handle_nba(league, date)
+        handle_nba(league, date, keywords)
     else:
         logger.console(f"Currently, we only support NBA. You entered: {league}")
 
@@ -113,9 +114,15 @@ def parse_arguments():
     parser.add_argument(
         "--date", required=True, help="Specify the date in YYYY-MM-DD format"
     )
+    parser.add_argument(
+        "--keywords",
+        nargs="*",
+        default=["dunk"],
+        help="Specify an array of keywords",
+    )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_arguments()
-    main(args.league, args.date)
+    main(args.league, args.date, args.keywords)
