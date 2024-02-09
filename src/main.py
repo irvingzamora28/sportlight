@@ -36,16 +36,16 @@ def process_game_data(game_data, date, keywords):
     actions_path = ["gameCard", "actions"]
     game_data_processor = GameDataProcessor([first_game_card])
     actions = game_data_processor.get_actions(actions_path)
-    tags_path = [
-        "gameCard",
-        "hero_configuration",
-        "gameRecap",
-        "taxonomy",
-        "tags",
-    ]
-    game_tags = game_data_processor.get_game_tags(tags_path)
-    game_id = game_data_processor.get_game_id()
-    logger.console(f"Game ID: {game_id}")
+    # tags_path = [
+    #     "gameCard",
+    #     "hero_configuration",
+    #     "gameRecap",
+    #     "taxonomy",
+    #     "tags",
+    # ]
+    # game_tags = game_data_processor.get_game_tags(tags_path)
+    # game_id = game_data_processor.get_game_id()
+    # logger.console(f"Game ID: {game_id}")
     game_slug = game_data_processor.get_game_slug(
         [
             "gameCard",
@@ -55,30 +55,30 @@ def process_game_data(game_data, date, keywords):
             "games",
         ]
     )
-    logger.console(f"Game slug: {game_slug}")
-    play_by_play_url = game_data_processor.get_play_by_play_url(actions)
-    logger.console(f"Looking for keywords in play by play: {keywords}")
-    play_by_play_data = fetch_game_play_by_play_data(play_by_play_url, keywords)
+    # logger.console(f"Game slug: {game_slug}")
+    # play_by_play_url = game_data_processor.get_play_by_play_url(actions)
+    # logger.console(f"Looking for keywords in play by play: {keywords}")
+    # play_by_play_data = fetch_game_play_by_play_data(play_by_play_url, keywords)
 
-    for event_data in play_by_play_data:
-        for event_data_video_url in event_data.get("video_urls", []):
-            logger.console(
-                f"Starting download play-by-play event video url: {event_data_video_url}"
-            )
-            VideoDownloader.download_video(
-                event_data_video_url,
-                f"{OUTPUT_NBA_VIDEOS_DIR}/{date}/{game_slug}",
-                f"{event_data['pos']}_{event_data['clock']}_{event_data['title']}.mp4",
-            )
+    # for event_data in play_by_play_data:
+    #     for event_data_video_url in event_data.get("video_urls", []):
+    #         logger.console(
+    #             f"Starting download play-by-play event video url: {event_data_video_url}"
+    #         )
+    #         VideoDownloader.download_video(
+    #             event_data_video_url,
+    #             f"{OUTPUT_NBA_VIDEOS_DIR}/{date}/{game_slug}",
+    #             f"{event_data['pos']}_{event_data['clock']}_{event_data['title']}.mp4",
+    #         )
 
     box_score_url = game_data_processor.get_box_score_url(actions)
     box_score_data = fetch_box_score_data(box_score_url)
-    filename = f"{OUTPUT_NBA_DIR}/raw/nba_box_score_{date}.json"
-    logger.console(f"Saving box score data to {filename}")
-    # # Write data to file
-    with open(filename, "w", encoding="utf-8") as file:
-        json.dump(box_score_data, file, ensure_ascii=False, indent=4)
-    logger.console(f"Data nba_box_score saved to {filename}")
+    # filename = f"{OUTPUT_NBA_DIR}/raw/nba_box_score_{date}.json"
+    # logger.console(f"Saving box score data to {filename}")
+    # # # Write data to file
+    # with open(filename, "w", encoding="utf-8") as file:
+    #     json.dump(box_score_data, file, ensure_ascii=False, indent=4)
+    # logger.console(f"Data nba_box_score saved to {filename}")
 
     directory = f"{OUTPUT_NBA_VIDEOS_DIR}/{date}/{game_slug}"
     video_paths = get_files_in_directory(directory)

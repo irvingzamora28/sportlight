@@ -1,4 +1,9 @@
-from moviepy.editor import VideoFileClip, concatenate_videoclips, ImageClip
+from moviepy.editor import (
+    VideoFileClip,
+    AudioFileClip,
+    concatenate_videoclips,
+    ImageClip,
+)
 from common.utilities import json_stats_to_html_image
 
 import traceback
@@ -42,6 +47,12 @@ class VideoEditor:
                 )
 
             clips = []
+
+            # Get the intro video
+            intro_clip = VideoFileClip("resources/video/intro.mp4")
+            audio = AudioFileClip("resources/audio/intro.mp3").audio_fadeout(5)
+            clips.append(intro_clip.set_audio(audio))
+
             # Process videos
             # Before processing the videos, order the paths in alphabetical order to make sure they are in the right time sequence
             video_paths.sort()
