@@ -2,6 +2,8 @@ from moviepy.editor import (
     VideoFileClip,
     AudioFileClip,
     concatenate_videoclips,
+    TextClip,
+    CompositeVideoClip,
     ImageClip,
 )
 from common.utilities import json_stats_to_html_image
@@ -58,7 +60,7 @@ class VideoEditor:
             input_video_path = "resources/video/intro.mp4"
             output_video_path = "resources/video/intro_correct_size.mp4"
 
-            resize_video(input_video_path, output_video_path, width, height)
+            resize(input_video_path, output_video_path, width, height)
 
             # Get the intro video
             intro_clip = VideoFileClip("resources/video/intro_correct_size.mp4")
@@ -95,10 +97,67 @@ class VideoEditor:
             final_clip.write_videofile(
                 f"{output_path}/final_highlight.mp4", codec="libx264", fps=30
             )
+            add_logo_to_video(
+                f"{output_path}/final_highlight.mp4",
+                f"{output_path}/final_highlight_logo.mp4",
+                "resources/image/logo.png",
+            )
         except Exception as e:
             logger.error(f"An error occurred: {e}")
             traceback.print_exc()
 
 
-def resize_video(input_path, output_path, width, height):
-    (ffmpeg.input(input_path).filter("scale", width, height).output(output_path).run())
+def resize(input_file, output_file, width, height):
+    (
+        ffmpeg.input(input_file)
+        .filter("scale", width, height)
+        .output(output_file)
+        .overwrite_output()
+        .run()
+    )
+
+
+def add_logo_to_video(input_file, output_file, logo_path):
+    video = VideoFileClip(input_file)
+
+    # Create black background
+    bg_black = TextClip(
+        "                                                                                                                      ",
+        fontsize=48,
+        color="white",
+        bg_color="black",
+        font="Arial",
+    )
+
+    # Set the duration of the bg_black clip
+    bg_black = bg_black.set_duration(video.duration)
+
+    # Set the position of the bg_black top right
+    bg_black = bg_black.set_pos(("right", "top"))
+
+    # Resize image to make it fit in the corner
+    output_image_path = "resources/image/logo_45_45.png"
+    resize(logo_path, output_image_path, 45, 45)
+
+    # Load your image
+    image = ImageClip("resources/image/logo_45_45.png")
+
+    # Set the duration of the image clip
+    image = image.set_duration(video.duration)
+
+    # Set the position of the image (top right corner)
+    padding_top = 0
+    padding_right = 20
+    image = image.set_position(
+        lambda t: (video.size[0] - image.size[0] - padding_right, padding_top)
+    )
+
+    # Overlay the text on your video
+    final_video = CompositeVideoClip([video, bg_black, image])
+
+    # Write the result to a file
+    final_video.write_videofile(
+        output_file,
+        codec="libx264",
+        fps=video.fps,
+    )

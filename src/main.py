@@ -14,8 +14,6 @@ from common.utilities import get_files_in_directory
 from common.video_editor import VideoEditor
 from common.utilities import json_stats_to_html_image
 from common.logger import logger
-from moviepy.editor import VideoFileClip, CompositeVideoClip, ImageClip, TextClip
-import ffmpeg
 
 OUTPUT_DIR = "output"
 NBA_DIR = "nba"
@@ -101,86 +99,9 @@ def handle_nba(league, date, keywords):
         logger.error(f"Error processing {league} data: {e}")
 
 
-def resize_image(input_image_path, output_image_path, size):
-    (
-        ffmpeg.input(input_image_path)
-        .filter("scale", size[0], size[1])
-        .output(output_image_path)
-        .overwrite_output()
-        .run()
-    )
-
-
 def main(league, date, keywords):
     if league.upper() == "NBA":
-        # handle_nba(league, date, keywords)
-        video = VideoFileClip(
-            "/home/irving/webdev/irving/sportlight/output/nba/videos/2024-02-08/SAS@ORL/017_09:37_Banchero 3' Cutting Dunk Shot .mp4"
-        )
-
-        # Create a text clip (customize as needed)
-        # 'color' is the text color, 'bg_color' is the background color
-        text1 = TextClip(
-            "                                                                                                                      ",
-            fontsize=48,
-            color="white",
-            bg_color="black",
-            font="Arial",
-        )
-        text = TextClip(
-            "Ball It Sports", fontsize=36, color="white", bg_color="black", font="Arial"
-        )
-
-        # Set the duration of the text clip
-        text1 = text1.set_duration(video.duration)
-        text = text.set_duration(video.duration)
-
-        # Set the position of the text top right
-        text1 = text1.set_pos(("right", "top"))
-        padding_top = 0  # pixels
-        padding_right = -120  # pixels
-
-        # Set the position of the text with padding
-        # Assuming 'video' is your main video clip
-        text = text.set_position(
-            lambda t: (video.size[0] - text.size[0] - padding_right, padding_top)
-        )
-
-        input_image_path = (
-            "/home/irving/webdev/irving/sportlight/resources/image/logo.png"
-        )
-        output_image_path = (
-            "/home/irving/webdev/irving/sportlight/resources/image/logo_45_45.png"
-        )
-        size = (45, 45)
-
-        resize_image(input_image_path, output_image_path, size)
-
-        # Load your image
-        image = ImageClip(
-            "/home/irving/webdev/irving/sportlight/resources/image/logo_45_45.png"
-        )
-
-        # Set the duration of the image clip
-        image = image.set_duration(video.duration)
-
-        # Set the initial position of the image (top left corner)
-        # and animate it to move to the right
-        image = image.set_position(
-            lambda t: (video.size[0] - text.size[0] - padding_right, padding_top)
-        )
-
-        # text = text.set_position(lambda t: (max(0, int(t * 100 - 45)), 5))
-
-        # Overlay the text on your video
-        final_video = CompositeVideoClip([video, text1, image])
-
-        # Write the result to a file
-        final_video.write_videofile(
-            "/home/irving/webdev/irving/sportlight/output/nba/videos/2024-02-08/SAS@ORL/final_highlight_out.mp4",
-            codec="libx264",
-            fps=video.fps,
-        )
+        handle_nba(league, date, keywords)
     else:
         logger.console(f"Currently, we only support NBA. You entered: {league}")
 
