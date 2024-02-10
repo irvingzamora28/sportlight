@@ -1,0 +1,221 @@
+{
+    "teams": [
+        {
+            "team_id": 1610612744,
+            "team_name": "Warriors",
+            "team_city": "Golden State",
+            "team_slug": "warriors",
+            "team_abbreviation": "GSW"
+        },
+        {
+            "team_id": 1610612757,
+            "team_name": "Trail Blazers",
+            "team_city": "Portland",
+            "team_slug": "blazers",
+            "team_abbreviation": "POR"
+        },
+        {
+            "team_id": 1610612754,
+            "team_name": "Pacers",
+            "team_city": "Indiana",
+            "team_slug": "pacers",
+            "team_abbreviation": "IND"
+        },
+        {
+            "team_id": 1610612737,
+            "team_name": "Hawks",
+            "team_city": "Atlanta",
+            "team_slug": "hawks",
+            "team_abbreviation": "ATL"
+        },
+        {
+            "team_id": 1610612755,
+            "team_name": "76ers",
+            "team_city": "Philadelphia",
+            "team_slug": "sixers",
+            "team_abbreviation": "PHI"
+        },
+        {
+            "team_id": 1610612762,
+            "team_name": "Jazz",
+            "team_city": "Utah",
+            "team_slug": "jazz",
+            "team_abbreviation": "UTA"
+        },
+        {
+            "team_id": 1610612751,
+            "team_name": "Nets",
+            "team_city": "Brooklyn",
+            "team_slug": "nets",
+            "team_abbreviation": "BKN"
+        },
+        {
+            "team_id": 1610612738,
+            "team_name": "Celtics",
+            "team_city": "Boston",
+            "team_slug": "celtics",
+            "team_abbreviation": "BOS"
+        },
+        {
+            "team_id": 1610612750,
+            "team_name": "Timberwolves",
+            "team_city": "Minnesota",
+            "team_slug": "timberwolves",
+            "team_abbreviation": "MIN"
+        },
+        {
+            "team_id": 1610612759,
+            "team_name": "Spurs",
+            "team_city": "San Antonio",
+            "team_slug": "spurs",
+            "team_abbreviation": "SAS"
+        },
+        {
+            "team_id": 1610612739,
+            "team_name": "Cavaliers",
+            "team_city": "Cleveland",
+            "team_slug": "cavaliers",
+            "team_abbreviation": "CLE"
+        },
+        {
+            "team_id": 1610612747,
+            "team_name": "Lakers",
+            "team_city": "Los Angeles",
+            "team_slug": "lakers",
+            "team_abbreviation": "LAL"
+        },
+        {
+            "team_id": 1610612749,
+            "team_name": "Bucks",
+            "team_city": "Milwaukee",
+            "team_slug": "bucks",
+            "team_abbreviation": "MIL"
+        },
+        {
+            "team_id": 1610612753,
+            "team_name": "Magic",
+            "team_city": "Orlando",
+            "team_slug": "magic",
+            "team_abbreviation": "ORL"
+        },
+        {
+            "team_id": 1610612761,
+            "team_name": "Raptors",
+            "team_city": "Toronto",
+            "team_slug": "raptors",
+            "team_abbreviation": "TOR"
+        },
+        {
+            "team_id": 1610612743,
+            "team_name": "Nuggets",
+            "team_city": "Denver",
+            "team_slug": "nuggets",
+            "team_abbreviation": "DEN"
+        },
+        {
+            "team_id": 1610612760,
+            "team_name": "Thunder",
+            "team_city": "Oklahoma City",
+            "team_slug": "thunder",
+            "team_abbreviation": "OKC"
+        },
+        {
+            "team_id": 1610612752,
+            "team_name": "Knicks",
+            "team_city": "New York",
+            "team_slug": "knicks",
+            "team_abbreviation": "NYK"
+        },
+        {
+            "team_id": 1610612745,
+            "team_name": "Rockets",
+            "team_city": "Houston",
+            "team_slug": "rockets",
+            "team_abbreviation": "HOU"
+        },
+        {
+            "team_id": 1610612758,
+            "team_name": "Kings",
+            "team_city": "Sacramento",
+            "team_slug": "kings",
+            "team_abbreviation": "SAC"
+        },
+        {
+            "team_id": 1610612740,
+            "team_name": "Pelicans",
+            "team_city": "New Orleans",
+            "team_slug": "pelicans",
+            "team_abbreviation": "NOP"
+        },
+        {
+            "team_id": 1610612742,
+            "team_name": "Mavericks",
+            "team_city": "Dallas",
+            "team_slug": "mavericks",
+            "team_abbreviation": "DAL"
+        },
+        {
+            "team_id": 1610612756,
+            "team_name": "Suns",
+            "team_city": "Phoenix",
+            "team_slug": "suns",
+            "team_abbreviation": "PHX"
+        },
+        {
+            "team_id": 1610612763,
+            "team_name": "Grizzlies",
+            "team_city": "Memphis",
+            "team_slug": "grizzlies",
+            "team_abbreviation": "MEM"
+        },
+        {
+            "team_id": 1610612748,
+            "team_name": "Heat",
+            "team_city": "Miami",
+            "team_slug": "heat",
+            "team_abbreviation": "MIA"
+        },
+        {
+            "team_id": 1610612746,
+            "team_name": "Clippers",
+            "team_city": "LA",
+            "team_slug": "clippers",
+            "team_abbreviation": "LAC"
+        },
+        {
+            "team_id": 1610612765,
+            "team_name": "Pistons",
+            "team_city": "Detroit",
+            "team_slug": "pistons",
+            "team_abbreviation": "DET"
+        },
+        {
+            "team_id": 1610612764,
+            "team_name": "Wizards",
+            "team_city": "Washington",
+            "team_slug": "wizards",
+            "team_abbreviation": "WAS"
+        },
+        {
+            "team_id": 1610612766,
+            "team_name": "Hornets",
+            "team_city": "Charlotte",
+            "team_slug": "hornets",
+            "team_abbreviation": "CHA"
+        },
+        {
+            "team_id": 0,
+            "team_name": null,
+            "team_city": null,
+            "team_slug": null,
+            "team_abbreviation": null
+        },
+        {
+            "team_id": 1610612741,
+            "team_name": "Bulls",
+            "team_city": "Chicago",
+            "team_slug": "bulls",
+            "team_abbreviation": "CHI"
+        }
+    ]
+}

@@ -109,6 +109,46 @@ def main(league, date, keywords):
     try:
         db_connection = DBConnection()
         sample_collection = db_connection.get_collection("sample_collection")
+        # Load json called players.json and get the unique "TEAM_NAME" values
+        players_json_filename = "resources/json/players.json"
+        with open(players_json_filename, "r") as file:
+            logger.console(f"Loading players data from {players_json_filename}")
+            players_data = json.load(file)
+            unique_teams = set()
+
+            for player in players_data["players"]:
+                # Creating a tuple of the team attributes to facilitate uniqueness
+                team = (
+                    player["TEAM_ID"],
+                    player["TEAM_NAME"],
+                    player["TEAM_CITY"],
+                    player["TEAM_SLUG"],
+                    player["TEAM_ABBREVIATION"],
+                )
+                unique_teams.add(team)
+
+            # Converting the set of teams to the required JSON format
+            teams_json = {
+                "teams": [
+                    {
+                        "team_id": team[0],
+                        "team_name": team[1],
+                        "team_city": team[2],
+                        "team_slug": team[3],
+                        "team_abbreviation": team[4],
+                    }
+                    for team in unique_teams
+                ]
+            }
+
+            # Writing the teams data to a file
+            with open("teams.json", "w") as file:
+                json.dump(teams_json, file, indent=4)
+
+            print("teams.json has been created with the team data.")
+        # for team in teams:
+        #     logger.console(f"Unique team found: {team}")
+
     except Exception as e:
         logger.error("An error occurred: %s", e)
 
