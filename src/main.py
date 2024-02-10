@@ -14,6 +14,7 @@ from common.utilities import get_files_in_directory
 from common.video_editor import VideoEditor
 from common.utilities import json_stats_to_html_image
 from common.logger import logger
+from db.db_connection import DBConnection
 
 OUTPUT_DIR = "output"
 NBA_DIR = "nba"
@@ -101,9 +102,15 @@ def handle_nba(league, date, keywords):
 
 def main(league, date, keywords):
     if league.upper() == "NBA":
-        handle_nba(league, date, keywords)
+        # handle_nba(league, date, keywords)
+        logger.console("NBA Selected")
     else:
         logger.console(f"Currently, we only support NBA. You entered: {league}")
+    try:
+        db_connection = DBConnection()
+        sample_collection = db_connection.get_collection("sample_collection")
+    except Exception as e:
+        logger.error("An error occurred: %s", e)
 
 
 def parse_arguments():
