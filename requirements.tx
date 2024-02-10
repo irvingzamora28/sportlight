@@ -4,3 +4,4 @@ python-dotenv
 moviepy
 selenium
 imgkit
+pymongo
