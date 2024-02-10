@@ -4,6 +4,7 @@ from moviepy.editor import (
     concatenate_videoclips,
     TextClip,
     CompositeVideoClip,
+    CompositeAudioClip,
     ImageClip,
 )
 from common.utilities import json_stats_to_html_image
@@ -50,7 +51,7 @@ class VideoEditor:
                 )
 
             video_paths.sort()
-            clips = []
+            video_clips = []
 
             # Resize intro video to size of game clips
             sample_game_clip = VideoFileClip(video_paths[0])
@@ -64,8 +65,10 @@ class VideoEditor:
 
             # Get the intro video
             intro_clip = VideoFileClip("resources/video/intro_correct_size.mp4")
-            audio = AudioFileClip("resources/audio/intro.mp3").audio_fadeout(5)
-            clips.append(intro_clip.set_audio(audio))
+            intro_audio = AudioFileClip("resources/audio/intro.mp3").audio_fadeout(5)
+            outro_audio = AudioFileClip("resources/audio/outro.mp3").audio_fadeout(7)
+            intro_clip = intro_clip.set_audio(intro_audio)
+            video_clips.append(intro_clip)
 
             # Process videos
             # Before processing the videos, order the paths in alphabetical order to make sure they are in the right time sequence
@@ -75,8 +78,9 @@ class VideoEditor:
                 # Keep only the ones that start with a number and and with .mp4 (These are the videos previously downloaded)
                 if videofilename[0].isnumeric() and videofilename.endswith(".mp4"):
                     # Add filtered paths to clips list
-                    clips.append(VideoFileClip(videopath))
+                    video_clips.append(VideoFileClip(videopath))
 
+            # Prepare and add image clips with outro audio
             if stats_home_team_image_path and stats_away_team_image_path:
                 # Create an ImageClip with the stats image
                 stats_home_team_image_clip = ImageClip(
@@ -86,15 +90,19 @@ class VideoEditor:
                     stats_away_team_image_path
                 ).set_duration(image_duration)
 
-                # Concatenate video clips and append the image clip at the end
-                final_clip = concatenate_videoclips(
-                    clips + [stats_home_team_image_clip] + [stats_away_team_image_clip],
-                    method="compose",
-                )
-            else:
-                final_clip = concatenate_videoclips(clips, method="compose")
+                # Create composite clips for images with outro audio
+                stats_home_team_video = CompositeVideoClip(
+                    [stats_home_team_image_clip]
+                ).set_audio(outro_audio)
+                stats_away_team_video = CompositeVideoClip([stats_away_team_image_clip])
+                image_clips = [stats_home_team_video, stats_away_team_video]
+                video_clips += image_clips
 
-            final_clip.write_videofile(
+            # Concatenate all clips
+            final_video_clip = concatenate_videoclips(video_clips, method="compose")
+
+            # Write final video file
+            final_video_clip.write_videofile(
                 f"{output_path}/final_highlight.mp4", codec="libx264", fps=30
             )
             add_logo_to_video(
