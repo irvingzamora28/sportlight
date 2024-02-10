@@ -8,15 +8,33 @@ Sportlight is an innovative project aimed at generating highlight videos from va
 
 -   **Data Extraction**: Crawlers for each league to fetch scores and videos.
 -   **Video Generation**: Automated video editing to compile highlights.
+-   **Data Storage**: Utilizing PyMongo and MongoDB for efficient data management.
 -   **Scalability**: Easily adaptable to include new leagues and data sources.
 -   **Maintainable Architecture**: Modular design for easy updates and maintenance.
 
 ## Setup and Requirements
 
 -   Python 3.x
--   Libraries: requests, BeautifulSoup, dotenv, moviepy (for video editing)
--   .env file for API and base URLs
--   FFmpeg for video processing (See FFmpeg installation guide below)
+-   Libraries: requests, BeautifulSoup, dotenv, moviepy, pymongo
+-   MongoDB database setup for data storage.
+-   .env file for API, base URLs, and database connection strings.
+-   FFmpeg for video processing (See FFmpeg installation guide below).
+
+## MongoDB and PyMongo Setup
+
+Sportlight uses MongoDB, a NoSQL database, to store and manage data efficiently, and PyMongo, the Python driver for MongoDB. Follow these steps for setting up MongoDB and integrating it with the project:
+
+1. Install MongoDB: Follow the instructions on the [MongoDB Official Website](https://www.mongodb.com/try/download/community) to install MongoDB on your system or set up a cloud-based instance using MongoDB Atlas.
+
+2. Install PyMongo: Use pip to install PyMongo, which allows your Python application to interact with MongoDB.
+
+```
+pip install pymongo
+```
+
+3. Configure MongoDB Connection: Update your .env file or configuration module with the MongoDB connection string.
+
+4. Use MongoDB for Data Operations: Implement data-related functions using PyMongo in the project.
 
 ## FFmpeg Installation
 
