@@ -102,7 +102,7 @@ def process_game_data(
 
 
 def handle_nba(
-    league, date, special_keywords, keywords, players, words_to_exlclude, max_games
+    league, date, special_keywords, keywords, players, words_to_exclude, max_games
 ):
     try:
         init_directories(date)
@@ -114,7 +114,7 @@ def handle_nba(
                 special_keywords,
                 keywords,
                 players,
-                words_to_exlclude,
+                words_to_exclude,
                 max_games,
             )
         else:
@@ -190,6 +190,6 @@ if __name__ == "__main__":
         args.special_keywords,
         args.keywords,
         args.players,
-        args.words_to_exlclude,
+        args.words_to_exclude,
         args.max_games,
     )
