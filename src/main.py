@@ -31,8 +31,10 @@ def init_directories(date):
     os.makedirs(os.path.join(OUTPUT_DIR, TESTS_DIR), exist_ok=True)
 
 
-def process_game_data(game_data, date, keywords):
-    for game_card in game_data:
+def process_game_data(game_data, date, keywords, max_games=None):
+    for idx, game_card in enumerate(game_data):
+        if max_games is not None and idx >= max_games:
+            break
         actions_path = ["gameCard", "actions"]
         game_data_processor = GameDataProcessor([game_card])
         actions = game_data_processor.get_actions(actions_path)
@@ -87,21 +89,21 @@ def process_game_data(game_data, date, keywords):
         )
 
 
-def handle_nba(league, date, keywords):
+def handle_nba(league, date, keywords, max_games):
     try:
         init_directories(date)
         game_data = fetch_game_data(date)
         if game_data:
-            process_game_data(game_data, date, keywords)
+            process_game_data(game_data, date, keywords, max_games)
         else:
             logger.console("No game data found")
     except Exception as e:
         logger.error(f"Error processing {league} data: {e}")
 
 
-def main(league, date, keywords):
+def main(league, date, keywords, max_games):
     if league.upper() == "NBA":
-        handle_nba(league, date, keywords)
+        handle_nba(league, date, keywords, max_games)
     else:
         logger.console(f"Currently, we only support NBA. You entered: {league}")
 
@@ -120,9 +122,16 @@ def parse_arguments():
         default=["dunk"],
         help="Specify an array of keywords",
     )
+    parser.add_argument(
+        "--max_games",
+        type=int,
+        default=None,
+        help="Specify the maximum number of games to process",
+    )
+
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_arguments()
-    main(args.league, args.date, args.keywords)
+    main(args.league, args.date, args.keywords, args.max_games)
