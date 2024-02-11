@@ -158,7 +158,7 @@ def parse_arguments():
         "--keywords",
         nargs="*",
         default=["dunk"],
-        help="Specify an array of special_keywords. Keywords are used to filter play-by-play data, these are used in conjuction with players names to select videos to download.",
+        help="Specify an array of keywords. Keywords are used to filter play-by-play data, these are used in conjuction with players names to select videos to download.",
     )
     parser.add_argument(
         "--players",

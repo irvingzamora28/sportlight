@@ -202,10 +202,10 @@ def fetch_play_videos_from_play_by_play_table(
     table_class="GamePlayByPlay_hasPlays__LgdnK",
     row_class="GamePlayByPlayRow_article__asoO2",
     button_all_class="GamePlayByPlay_tab__BboK4",
-    keywords=None,
+    special_keywords=None,
     players=None,
     words_to_exclude=None,
-    special_keywords=None,
+    keywords=None,
     wait_time=5,
     additional_wait_time=5,
 ):
@@ -221,10 +221,10 @@ def fetch_play_videos_from_play_by_play_table(
     table_class (str): Class of the table containing the video links.
     row_class (str): Class of the rows in the table to interact with.
     button_all_class (str): Class of the "All" tab button, if present.
-    keywords (list[str], optional): List of keywords to filter the rows.
+    special_keywords (list[str], optional): List of special keywords to match rows, these will override normal keyword matching.
     players (list[str], optional): List of player names to filter the rows.
     words_to_exclude (list[str], optional): List of words to exclude from row text matching.
-    special_keywords (list[str], optional): List of special keywords to match rows, these will override normal keyword matching.
+    keywords (list[str], optional): List of keywords to filter the rows.
     wait_time (int): Time in seconds to wait for elements to load.
     additional_wait_time (int): Additional time to wait after elements are found, in seconds.
     """
@@ -297,7 +297,7 @@ def fetch_play_videos_from_play_by_play_table(
     try:
         video_rows = driver.find_elements(By.CSS_SELECTOR, f".{row_class}")
         video_play_by_play_event_data = process_play_by_play_video_rows(
-            video_rows, keywords, players, words_to_exclude, special_keywords
+            video_rows, special_keywords, players, words_to_exclude, keywords
         )
 
     except Exception as e:
@@ -310,10 +310,10 @@ def fetch_play_videos_from_play_by_play_table(
 
 def process_play_by_play_video_rows(
     video_rows,
-    keywords=None,
+    special_keywords=None,
     players=None,
     words_to_exclude=None,
-    special_keywords=None,
+    keywords=None,
 ):
     video_play_by_play_event_data = []
     logger.console("Looking for rows...")
