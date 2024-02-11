@@ -306,25 +306,28 @@ def fetch_play_videos_from_play_by_play_table(
                 special_keyword.lower() in row_text
                 for special_keyword in special_keywords
             ):
-                pass  # Keep the row no matter what
+                # Process row, special keywords have the highest priority
+                pass
             else:
-                # Check for keywords if provided
-                if keywords and not any(
-                    keyword.lower() in row_text for keyword in keywords
-                ):
-                    continue  # Skip this row if no keywords match
+                # Player check
+                if players and any(player.lower() in row_text for player in players):
+                    # Words to exclude check
+                    if words_to_exclude and any(
+                        word.lower() in row_text for word in words_to_exclude
+                    ):
+                        # If words to exclude are found, discard the row
+                        continue
 
-                # Check for words to exclude
-                if words_to_exclude and any(
-                    word.lower() in row_text for word in words_to_exclude
-                ):
-                    continue  # Skip this row if any excluded word is found
+                    # Keywords check
+                    if keywords and not any(
+                        keyword.lower() in row_text for keyword in keywords
+                    ):
+                        # If keywords are provided but not found, discard the row
+                        continue
 
-                # Check for players
-                if players and not any(
-                    player.lower() in row_text for player in players
-                ):
-                    continue  # Skip this row if no player is found
+                # If players are not found, discard the row
+                else:
+                    continue
 
             try:
                 video_event = row.find_element(
