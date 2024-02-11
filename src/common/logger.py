@@ -38,6 +38,14 @@ logging.config.dictConfig(
                 "level": "DEBUG",
             }
         },
+        "loggers": {
+            # Specific logger configuration for selenium
+            "selenium": {
+                "level": "WARNING",
+                "handlers": ["file"],
+                "propagate": False,
+            }
+        },
         "root": {"level": "DEBUG", "handlers": ["file"]},
     }
 )
