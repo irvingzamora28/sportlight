@@ -31,7 +31,15 @@ def init_directories(date):
     os.makedirs(os.path.join(OUTPUT_DIR, TESTS_DIR), exist_ok=True)
 
 
-def process_game_data(game_data, date, special_keywords, max_games=None):
+def process_game_data(
+    game_data,
+    date,
+    special_keywords,
+    keywords,
+    players,
+    words_to_exclude,
+    max_games=None,
+):
     for idx, game_card in enumerate(game_data):
         if max_games is not None and idx >= max_games:
             break
@@ -93,21 +101,41 @@ def process_game_data(game_data, date, special_keywords, max_games=None):
         )
 
 
-def handle_nba(league, date, special_keywords, max_games):
+def handle_nba(
+    league, date, special_keywords, keywords, players, words_to_exlclude, max_games
+):
     try:
         init_directories(date)
         game_data = fetch_game_data(date)
         if game_data:
-            process_game_data(game_data, date, special_keywords, max_games)
+            process_game_data(
+                game_data,
+                date,
+                special_keywords,
+                keywords,
+                players,
+                words_to_exlclude,
+                max_games,
+            )
         else:
             logger.console("No game data found")
     except Exception as e:
         logger.error(f"Error processing {league} data: {e}")
 
 
-def main(league, date, special_keywords, max_games):
+def main(
+    league, date, special_keywords, keywords, players, words_to_exclude, max_games
+):
     if league.upper() == "NBA":
-        handle_nba(league, date, special_keywords, max_games)
+        handle_nba(
+            league,
+            date,
+            special_keywords,
+            keywords,
+            players,
+            words_to_exclude,
+            max_games,
+        )
     else:
         logger.console(f"Currently, we only support NBA. You entered: {league}")
 
@@ -124,7 +152,25 @@ def parse_arguments():
         "--special_keywords",
         nargs="*",
         default=["dunk"],
-        help="Specify an array of special_keywords",
+        help="Specify an array of special_keywords. Special keywords are used to filter play-by-play data for videos. Videos will be downloaded if the play-by-play text contains any of the special keywords",
+    )
+    parser.add_argument(
+        "--keywords",
+        nargs="*",
+        default=["dunk"],
+        help="Specify an array of special_keywords. Keywords are used to filter play-by-play data, these are used in conjuction with players names to select videos to download.",
+    )
+    parser.add_argument(
+        "--players",
+        nargs="*",
+        default=[],
+        help="Specify an array of player names. Player names are used in conjuction with keywords to select videos to download.",
+    )
+    parser.add_argument(
+        "--words_to_exclude",
+        nargs="*",
+        default=[],
+        help="Specify an array of words to exclude from the play-by-play text search. Videos will NOT be downloaded if the play-by-play text contains any of the excluded words.",
     )
     parser.add_argument(
         "--max_games",
@@ -138,4 +184,12 @@ def parse_arguments():
 
 if __name__ == "__main__":
     args = parse_arguments()
-    main(args.league, args.date, args.special_keywords, args.max_games)
+    main(
+        args.league,
+        args.date,
+        args.special_keywords,
+        args.keywords,
+        args.players,
+        args.words_to_exlclude,
+        args.max_games,
+    )
