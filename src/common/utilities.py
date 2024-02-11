@@ -238,13 +238,13 @@ def fetch_play_videos_from_play_by_play_table(
             )
             close_cookie_banner_button.click()
         except TimeoutException:
-            print(
+            logger.error(
                 "No cookie banner found or timeout occurred while waiting for cookie banner."
             )
         except NoSuchElementException:
-            print("Cookie banner close button not found.")
+            logger.error("Cookie banner close button not found.")
         except Exception as e:
-            print(f"Error while handling cookie banner: {e}")
+            logger.error(f"Error while handling cookie banner: {e}")
 
         # Wait for the table to load after handling cookie banner
         WebDriverWait(driver, wait_time).until(
@@ -267,29 +267,31 @@ def fetch_play_videos_from_play_by_play_table(
                 By.XPATH,
                 f"//button[contains(@class, '{button_all_class}') and contains(text(), 'ALL')]",
             )
-            print("Clicking ALL button")
+            logger.console("Clicking ALL button")
             all_button.click()
         except NoSuchElementException:
-            print("Button with text 'ALL' not found")
+            logger.error("Button with text 'ALL' not found")
         except TimeoutException:
-            print("Timeout waiting for buttons to be present")
+            logger.error("Timeout waiting for buttons to be present")
         except WebDriverException as e:
-            print(f"Web driver error: {e}")
+            logger.error(f"Web driver error: {e}")
         # Optional: wait a bit more because sometimes the table with all the events takes time to load after clicking the "ALL" button
         time.sleep(additional_wait_time)
     except TimeoutException:
-        print(f"Timeout while waiting for the table with class {table_class} to load.")
+        logger.error(
+            f"Timeout while waiting for the table with class {table_class} to load."
+        )
         driver.quit()
         return []
     except WebDriverException as e:
-        print(f"Web driver error: {e}")
+        logger.error(f"Web driver error: {e}")
         driver.quit()
         return []
     video_play_by_play_event_data = []
     try:
-        print("Looking for rows...")
+        logger.console("Looking for rows...")
         video_rows = driver.find_elements(By.CSS_SELECTOR, f".{row_class}")
-        print(f"Iterating through {len(video_rows)} rows...")
+        logger.console(f"Iterating through {len(video_rows)} rows...")
         for row in video_rows:
             # Check for keywords if provided
             if keywords and not any(
@@ -301,6 +303,9 @@ def fetch_play_videos_from_play_by_play_table(
                 video_event = row.find_element(
                     By.CSS_SELECTOR, ".GamePlayByPlayRow_statEvent__Ru8Pr"
                 )
+                if not video_event:
+                    continue  # If no video_event is found skip row
+
                 video_event_page_url = video_event.get_attribute("href")
                 video_event_clock = row.find_element(
                     By.CSS_SELECTOR, ".GamePlayByPlayRow_clockElement__LfzHV"
@@ -329,12 +334,12 @@ def fetch_play_videos_from_play_by_play_table(
                     }
                     video_play_by_play_event_data.append(video_event_data)
             except NoSuchElementException:
-                print("Video event not found in this row.")
+                logger.error("Video event not found in this row.")
             except Exception as e:
-                print(f"An error occurred while processing a row: {e}")
+                logger.error(f"An error occurred while processing a row: {e}")
 
     except Exception as e:
-        print(f"An error occurred during row iteration: {e}")
+        logger.error(f"An error occurred during row iteration: {e}")
     finally:
         driver.quit()
 
