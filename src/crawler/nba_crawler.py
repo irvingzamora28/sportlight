@@ -165,12 +165,17 @@ def fetch_box_score_data(url):
     return box_score_data
 
 
-def fetch_game_play_by_play_data(url, keywords=None):
+def fetch_game_play_by_play_data(
+    url, keywords=None, players=None, words_to_exclude=None, special_keywords=None
+):
     """
     Fetches the play-by-play data from the given URL.
     Parameters:
     url (str): The URL to fetch the play-by-play data from.
     keywords (list): A list of keywords to filter the play-by-play events. Defaults to None.
+    players (list[str], optional): List of player names to filter the rows.
+    words_to_exclude (list[str], optional): List of words to exclude from row text matching.
+    special_keywords (list[str], optional): List of special keywords to match rows, these will override normal keyword matching.
     Returns:
     list: A list of play-by-play events extracted from the box score page HTML.
     """
@@ -187,6 +192,9 @@ def fetch_game_play_by_play_data(url, keywords=None):
             "GamePlayByPlayRow_article__asoO2",
             "GamePlayByPlay_tab__BboK4",
             keywords,
+            players,
+            words_to_exclude,
+            special_keywords,
         )
         if play_by_play_data:
             for event_data in play_by_play_data:

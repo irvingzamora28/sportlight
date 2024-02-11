@@ -203,6 +203,9 @@ def fetch_play_videos_from_play_by_play_table(
     row_class="GamePlayByPlayRow_article__asoO2",
     button_all_class="GamePlayByPlay_tab__BboK4",
     keywords=None,
+    players=None,
+    words_to_exclude=None,
+    special_keywords=None,
     wait_time=5,
     additional_wait_time=5,
 ):
@@ -219,6 +222,9 @@ def fetch_play_videos_from_play_by_play_table(
     row_class (str): Class of the rows in the table to interact with.
     button_all_class (str): Class of the "All" tab button, if present.
     keywords (list[str], optional): List of keywords to filter the rows.
+    players (list[str], optional): List of player names to filter the rows.
+    words_to_exclude (list[str], optional): List of words to exclude from row text matching.
+    special_keywords (list[str], optional): List of special keywords to match rows, these will override normal keyword matching.
     wait_time (int): Time in seconds to wait for elements to load.
     additional_wait_time (int): Additional time to wait after elements are found, in seconds.
     """
@@ -293,11 +299,32 @@ def fetch_play_videos_from_play_by_play_table(
         video_rows = driver.find_elements(By.CSS_SELECTOR, f".{row_class}")
         logger.console(f"Iterating through {len(video_rows)} rows...")
         for row in video_rows:
-            # Check for keywords if provided
-            if keywords and not any(
-                keyword.lower() in row.text.lower() for keyword in keywords
+            row_text = row.text.lower()
+
+            # Check for special keywords
+            if special_keywords and any(
+                special_keyword.lower() in row_text
+                for special_keyword in special_keywords
             ):
-                continue  # Skip this row if no keywords match
+                pass  # Keep the row no matter what
+            else:
+                # Check for keywords if provided
+                if keywords and not any(
+                    keyword.lower() in row_text for keyword in keywords
+                ):
+                    continue  # Skip this row if no keywords match
+
+                # Check for words to exclude
+                if words_to_exclude and any(
+                    word.lower() in row_text for word in words_to_exclude
+                ):
+                    continue  # Skip this row if any excluded word is found
+
+                # Check for players
+                if players and not any(
+                    player.lower() in row_text for player in players
+                ):
+                    continue  # Skip this row if no player is found
 
             try:
                 video_event = row.find_element(
