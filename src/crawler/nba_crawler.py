@@ -198,6 +198,7 @@ def fetch_game_play_by_play_data(
         )
         if play_by_play_data:
             for event_data in play_by_play_data:
+                logger.console(f"Processing event: {event_data['title']}")
                 video_urls = fetch_video_urls_from_table(
                     event_data["page_url"],
                     "Crom_table__p1iZz",

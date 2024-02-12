@@ -319,16 +319,20 @@ def process_play_by_play_video_rows(
     logger.console("Looking for rows...")
     logger.console(f"Iterating through {len(video_rows)} rows...")
     for row in video_rows:
-        if should_include_row_based_on_filters(
-            row.text, special_keywords, players, words_to_exclude, keywords
-        ):
-            try:
-                video_event = row.find_element(
-                    By.CSS_SELECTOR, ".GamePlayByPlayRow_statEvent__Ru8Pr"
-                )
-                if not video_event:
-                    continue  # If no video_event is found skip row
+        try:
+            video_event = row.find_element(
+                By.CSS_SELECTOR, ".GamePlayByPlayRow_statEvent__Ru8Pr"
+            )
+            if not video_event:
+                continue  # If no video_event is found skip row
 
+            video_event_title = row.find_element(
+                By.CSS_SELECTOR, ".GamePlayByPlayRow_descBlock__By8pv"
+            ).get_attribute("data-text")
+
+            if should_include_row_based_on_filters(
+                video_event_title, special_keywords, players, words_to_exclude, keywords
+            ):
                 video_event_page_url = video_event.get_attribute("href")
                 video_event_clock = row.find_element(
                     By.CSS_SELECTOR, ".GamePlayByPlayRow_clockElement__LfzHV"
@@ -336,13 +340,11 @@ def process_play_by_play_video_rows(
                 video_event_pos = row.find_element(
                     By.CSS_SELECTOR, ".GamePlayByPlayRow_descBlock__By8pv"
                 ).get_attribute("data-pos")
-                video_event_title = row.find_element(
-                    By.CSS_SELECTOR, ".GamePlayByPlayRow_descBlock__By8pv"
-                ).get_attribute("data-text")
-                logger.console(
+                logger.info(
                     f"{video_event_clock} {video_event_title} | Pos: {video_event_pos}"
                 )
-                logger.console(f"Adding event URL: {video_event_page_url}")
+                logger.info(f"Adding event URL: {video_event_page_url}")
+
                 # Clean data
                 video_event_title = regex.sub(r"\(.*\)", "", video_event_title.strip())
                 # Remove everything after the "/" in the video_event_pos and make sure its 3 digits
@@ -356,10 +358,10 @@ def process_play_by_play_video_rows(
                         "page_url": video_event_page_url,
                     }
                     video_play_by_play_event_data.append(video_event_data)
-            except NoSuchElementException:
-                logger.error("Video event not found in this row.")
-            except Exception as e:
-                logger.error(f"An error occurred while processing a row: {e}")
+        except NoSuchElementException:
+            logger.error("Video event not found in this row.")
+        except Exception as e:
+            logger.error(f"An error occurred while processing a row: {e}")
 
     return video_play_by_play_event_data
 
