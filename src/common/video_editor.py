@@ -101,15 +101,30 @@ class VideoEditor:
             # Concatenate all clips
             final_video_clip = concatenate_videoclips(video_clips, method="compose")
 
+            # Generate the logo clip
+            video_size = (width, height)
+            total_duration = sum(clip.duration for clip in video_clips)
+            logo_clip = create_logo_clip(
+                "resources/image/logo.png", video_size, total_duration
+            )
+
+            # Add the logo clip to the final composition
+            final_video_clip = CompositeVideoClip([final_video_clip, logo_clip])
+
             # Write final video file
             final_video_clip.write_videofile(
-                f"{output_path}/final_highlight.mp4", codec="libx264", fps=30
+                f"{output_path}/final_highlight_logo.mp4", codec="libx264", fps=30
             )
-            add_logo_to_video(
-                f"{output_path}/final_highlight.mp4",
-                f"{output_path}/final_highlight_logo.mp4",
-                "resources/image/logo.png",
-            )
+
+            # # Write final video file
+            # final_video_clip.write_videofile(
+            #     f"{output_path}/final_highlight.mp4", codec="libx264", fps=30
+            # )
+            # add_logo_to_video(
+            #     f"{output_path}/final_highlight.mp4",
+            #     f"{output_path}/final_highlight_logo.mp4",
+            #     "resources/image/logo.png",
+            # )
         except Exception as e:
             logger.error(f"An error occurred: {e}")
             traceback.print_exc()
@@ -123,6 +138,62 @@ def resize(input_file, output_file, width, height):
         .overwrite_output()
         .run()
     )
+
+
+def create_logo_clip(
+    logo_path,
+    video_size,
+    duration,
+    logo_size=(45, 45),
+    padding_top=0,
+    padding_right=20,
+    bg_height=60,
+):
+    """
+    Creates an ImageClip with the logo.
+
+    Parameters:
+        logo_path (str): Path to the logo image.
+        video_size (tuple): Size of the video (width, height).
+        duration (float): Duration of the logo clip.
+        logo_size (tuple): Size of the logo (width, height).
+        padding_top (int): Top padding for the logo.
+        padding_right (int): Right padding for the logo.
+        bg_height (int): Height of the black background.
+
+    Returns:
+        ImageClip: An ImageClip of the logo.
+    """
+    # Resize image to make it fit in the corner
+    output_image_path = "resources/image/logo_resized.png"
+    resize(logo_path, output_image_path, *logo_size)
+
+    # Load and set the logo image
+    logo = ImageClip(output_image_path)
+    logo_position = (video_size[0] - logo_size[0] - padding_right, padding_top)
+    logo = logo.set_position(logo_position).set_duration(duration)
+
+    # Create black background
+    bg_black = (
+        TextClip(
+            " "
+            * 100,  # Adjust the number of spaces based on the desired width of the background
+            fontsize=48,
+            color="white",
+            bg_color="black",
+            font="Arial",
+        )
+        .set_duration(duration)
+        .set_position(("right", "top"))
+    )
+
+    # Adjust the size of the background
+    # bg_black = bg_black.set_size((logo_size[0] + padding_right, bg_height))
+
+    # Overlay the logo on the black background
+    final_logo_clip = CompositeVideoClip([bg_black, logo], size=video_size)
+
+    return final_logo_clip
 
 
 def add_logo_to_video(input_file, output_file, logo_path):
