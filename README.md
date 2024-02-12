@@ -236,6 +236,18 @@ To generate a highlight video:
 python src/main.py --league NBA --date 2024-01-01
 ```
 
+## Running Tests
+
+This project uses Python's built-in \`unittest\` framework for automated testing.
+
+To run all tests, navigate to the root directory of this project and execute the following command:
+
+```bash
+python -m unittest discover -s tests
+```
+
+This command will discover and run all test cases in the \`tests\` directory.
+
 ## Future Enhancements
 
 -   AI-based video selection for most exciting moments.
