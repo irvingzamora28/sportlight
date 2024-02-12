@@ -140,7 +140,6 @@ def create_logo_clip(
     logo_size=(45, 45),
     padding_top=0,
     padding_right=20,
-    bg_height=60,
 ):
     """
     Creates an ImageClip with the logo.
@@ -197,8 +196,14 @@ def trim_clip(videopath, max_duration):
         VideoFileClip: A trimmed video clip.
     """
     video_clip = VideoFileClip(videopath)
-    # If the clip is longer than max_duration, trim it
+
+    # Trim 1 seconds from the end if the clip is longer than max_duration
+    if video_clip.duration > 1:
+        video_clip = video_clip.subclip(0, video_clip.duration - 1)
+
+    # If the clip is still longer than max_duration, trim the beginning
     if video_clip.duration > max_duration:
         start_time = video_clip.duration - max_duration
-        return video_clip.subclip(start_time, video_clip.duration)
+        video_clip = video_clip.subclip(start_time, video_clip.duration)
+
     return video_clip
