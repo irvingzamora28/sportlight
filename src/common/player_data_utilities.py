@@ -22,3 +22,12 @@ class PlayerDataUtils:
                     combined_players.append(player)
 
         return combined_players
+
+    @staticmethod
+    def get_players_lastnames(players):
+        try:
+            player_names = [player["familyName"] for player in players]
+            return player_names
+        except KeyError:
+            print("Error: 'familyName' key not found in player data")
+            return None

@@ -1,6 +1,6 @@
 import regex
 import requests
-from src.common.logger import logger
+from common.logger import logger
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait

@@ -66,12 +66,36 @@ def process_game_data(
             ]
         )
         logger.console(f"Game slug: {game_slug}")
+        box_score_url = game_data_processor.get_box_score_url(actions)
+        box_score_data = fetch_box_score_data(box_score_url)
+        filename = f"{OUTPUT_NBA_DIR}/raw/nba_box_score_{game_slug}_{date}.json"
+        logger.console(f"Saving box score data to {filename}")
+        # Write data to file
+        with open(filename, "w", encoding="utf-8") as file:
+            json.dump(box_score_data, file, ensure_ascii=False, indent=4)
+        logger.console(f"Data nba_box_score saved to {filename}")
+
+        # If players is empty, get key players
+        if not players:
+            # Get key players
+            box_score_data_processor = BoxScoreDataProcessor(box_score_data)
+            key_players = box_score_data_processor.get_key_players(game_tags)
+            # Print key players
+            for player in key_players:
+                logger.console(f"{player['familyName']}")
+            lead_stats_players = box_score_data_processor.get_lead_stats_players()
+            all_key_players = PlayerDataUtils.combine_players(
+                "personId", key_players, lead_stats_players
+            )
+
+            players = PlayerDataUtils.get_players_lastnames(all_key_players)
+
         play_by_play_url = game_data_processor.get_play_by_play_url(actions)
         logger.console(
             f"Looking for special_keywords in play by play: {special_keywords}"
         )
         play_by_play_data = fetch_game_play_by_play_data(
-            play_by_play_url, special_keywords
+            play_by_play_url, special_keywords, players, words_to_exclude, keywords
         )
 
         for event_data in play_by_play_data:
@@ -84,15 +108,6 @@ def process_game_data(
                     f"{OUTPUT_NBA_VIDEOS_DIR}/{date}/{game_slug}",
                     f"{event_data['pos']}_{event_data['clock']}_{event_data['title']}.mp4",
                 )
-
-        box_score_url = game_data_processor.get_box_score_url(actions)
-        box_score_data = fetch_box_score_data(box_score_url)
-        filename = f"{OUTPUT_NBA_DIR}/raw/nba_box_score_{date}.json"
-        logger.console(f"Saving box score data to {filename}")
-        # # Write data to file
-        with open(filename, "w", encoding="utf-8") as file:
-            json.dump(box_score_data, file, ensure_ascii=False, indent=4)
-        logger.console(f"Data nba_box_score saved to {filename}")
 
         directory = f"{OUTPUT_NBA_VIDEOS_DIR}/{date}/{game_slug}"
         video_paths = get_files_in_directory(directory)
