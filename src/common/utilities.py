@@ -347,12 +347,11 @@ def process_play_by_play_video_rows(
 
                 # Clean data
                 video_event_title = regex.sub(r"\(.*\)", "", video_event_title.strip())
-                # Remove everything after the "/" in the video_event_pos and make sure its 3 digits
-                video_event_pos = video_event_pos.split("/")[0].strip().zfill(3)
+
                 # Remove from title everything inside parenthesis
                 if video_event_page_url:
                     video_event_data = {
-                        "pos": video_event_pos,
+                        "pos": f"{video_event_pos:0>3}",
                         "title": video_event_title,
                         "clock": video_event_clock,
                         "page_url": video_event_page_url,
