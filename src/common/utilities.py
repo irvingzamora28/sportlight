@@ -1,6 +1,6 @@
 import regex
 import requests
-from common.logger import logger
+from src.common.logger import logger
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -319,75 +319,78 @@ def process_play_by_play_video_rows(
     logger.console("Looking for rows...")
     logger.console(f"Iterating through {len(video_rows)} rows...")
     for row in video_rows:
-        row_text = row.text.lower()
-
-        # Check for special keywords
-        if special_keywords and any(
-            special_keyword.lower() in row_text for special_keyword in special_keywords
+        if should_include_row_based_on_filters(
+            row.text, special_keywords, players, words_to_exclude, keywords
         ):
-            # Process row, special keywords have the highest priority
-            pass
-        else:
-            # Player check
-            if players and any(player.lower() in row_text for player in players):
-                # Words to exclude check
-                if words_to_exclude and any(
-                    word.lower() in row_text for word in words_to_exclude
-                ):
-                    # If words to exclude are found, discard the row
-                    continue
+            try:
+                video_event = row.find_element(
+                    By.CSS_SELECTOR, ".GamePlayByPlayRow_statEvent__Ru8Pr"
+                )
+                if not video_event:
+                    continue  # If no video_event is found skip row
 
-                # Keywords check
-                if keywords and not any(
-                    keyword.lower() in row_text for keyword in keywords
-                ):
-                    # If keywords are provided but not found, discard the row
-                    continue
-
-            # If players are not found, discard the row
-            else:
-                continue
-
-        try:
-            video_event = row.find_element(
-                By.CSS_SELECTOR, ".GamePlayByPlayRow_statEvent__Ru8Pr"
-            )
-            if not video_event:
-                continue  # If no video_event is found skip row
-
-            video_event_page_url = video_event.get_attribute("href")
-            video_event_clock = row.find_element(
-                By.CSS_SELECTOR, ".GamePlayByPlayRow_clockElement__LfzHV"
-            ).text
-            video_event_pos = row.find_element(
-                By.CSS_SELECTOR, ".GamePlayByPlayRow_descBlock__By8pv"
-            ).get_attribute("data-pos")
-            video_event_title = row.find_element(
-                By.CSS_SELECTOR, ".GamePlayByPlayRow_descBlock__By8pv"
-            ).get_attribute("data-text")
-            logger.console(
-                f"{video_event_clock} {video_event_title} | Pos: {video_event_pos}"
-            )
-            logger.console(f"Adding event URL: {video_event_page_url}")
-            # Clean data
-            video_event_title = regex.sub(r"\(.*\)", "", video_event_title.strip())
-            # Remove everything after the "/" in the video_event_pos and make sure its 3 digits
-            video_event_pos = video_event_pos.split("/")[0].strip().zfill(3)
-            # Remove from title everything inside parenthesis
-            if video_event_page_url:
-                video_event_data = {
-                    "pos": video_event_pos,
-                    "title": video_event_title,
-                    "clock": video_event_clock,
-                    "page_url": video_event_page_url,
-                }
-                video_play_by_play_event_data.append(video_event_data)
-        except NoSuchElementException:
-            logger.error("Video event not found in this row.")
-        except Exception as e:
-            logger.error(f"An error occurred while processing a row: {e}")
+                video_event_page_url = video_event.get_attribute("href")
+                video_event_clock = row.find_element(
+                    By.CSS_SELECTOR, ".GamePlayByPlayRow_clockElement__LfzHV"
+                ).text
+                video_event_pos = row.find_element(
+                    By.CSS_SELECTOR, ".GamePlayByPlayRow_descBlock__By8pv"
+                ).get_attribute("data-pos")
+                video_event_title = row.find_element(
+                    By.CSS_SELECTOR, ".GamePlayByPlayRow_descBlock__By8pv"
+                ).get_attribute("data-text")
+                logger.console(
+                    f"{video_event_clock} {video_event_title} | Pos: {video_event_pos}"
+                )
+                logger.console(f"Adding event URL: {video_event_page_url}")
+                # Clean data
+                video_event_title = regex.sub(r"\(.*\)", "", video_event_title.strip())
+                # Remove everything after the "/" in the video_event_pos and make sure its 3 digits
+                video_event_pos = video_event_pos.split("/")[0].strip().zfill(3)
+                # Remove from title everything inside parenthesis
+                if video_event_page_url:
+                    video_event_data = {
+                        "pos": video_event_pos,
+                        "title": video_event_title,
+                        "clock": video_event_clock,
+                        "page_url": video_event_page_url,
+                    }
+                    video_play_by_play_event_data.append(video_event_data)
+            except NoSuchElementException:
+                logger.error("Video event not found in this row.")
+            except Exception as e:
+                logger.error(f"An error occurred while processing a row: {e}")
 
     return video_play_by_play_event_data
+
+
+def should_include_row_based_on_filters(
+    row_text, special_keywords=None, players=None, words_to_exclude=None, keywords=None
+):
+    row_text = row_text.lower()
+
+    # Check for special keywords
+    if special_keywords and any(
+        special_keyword.lower() in row_text for special_keyword in special_keywords
+    ):
+        return True
+
+    # Player check
+    # The first word of row_text is the players name, so just check the first word
+    if players and any(player.lower() in row_text.split(" ")[0] for player in players):
+        # Words to exclude check
+        if words_to_exclude and any(
+            word.lower() in row_text for word in words_to_exclude
+        ):
+            return False
+
+        # Keywords check - if provided, must match at least one keyword
+        if keywords:
+            return any(keyword.lower() in row_text for keyword in keywords)
+        else:
+            return True
+
+    return False
 
 
 def json_stats_to_html_image(stats_json, output_image_path):
