@@ -12,6 +12,8 @@ import ffmpeg
 import traceback
 from common.logger import logger
 
+MAX_DURATION = 8  # Maximum duration of each clip in seconds
+
 
 class VideoEditor:
     @staticmethod
@@ -77,8 +79,8 @@ class VideoEditor:
                 videofilename = videopath.split("/")[-1]
                 # Keep only the ones that start with a number and and with .mp4 (These are the videos previously downloaded)
                 if videofilename[0].isnumeric() and videofilename.endswith(".mp4"):
-                    # Add filtered paths to clips list
-                    video_clips.append(VideoFileClip(videopath))
+                    video_clip = trim_clip(videopath, MAX_DURATION)
+                    video_clips.append(video_clip)
 
             # Prepare and add image clips with outro audio
             if stats_home_team_image_path and stats_away_team_image_path:
@@ -167,8 +169,7 @@ def create_logo_clip(
     # Create black background
     bg_black = (
         TextClip(
-            " "
-            * 100,  # Adjust the number of spaces based on the desired width of the background
+            " " * 100,
             fontsize=48,
             color="white",
             bg_color="black",
@@ -182,3 +183,22 @@ def create_logo_clip(
     final_logo_clip = CompositeVideoClip([bg_black, logo], size=video_size)
 
     return final_logo_clip
+
+
+def trim_clip(videopath, max_duration):
+    """
+    Trims a video clip to a specified maximum duration from the end.
+
+    Parameters:
+        videopath (str): Path to the video file.
+        max_duration (int): Maximum duration of the trimmed video clip in seconds.
+
+    Returns:
+        VideoFileClip: A trimmed video clip.
+    """
+    video_clip = VideoFileClip(videopath)
+    # If the clip is longer than max_duration, trim it
+    if video_clip.duration > max_duration:
+        start_time = video_clip.duration - max_duration
+        return video_clip.subclip(start_time, video_clip.duration)
+    return video_clip
