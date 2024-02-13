@@ -19,6 +19,7 @@ Sportlight is an innovative project aimed at generating highlight videos from va
 -   MongoDB database setup for data storage.
 -   .env file for API, base URLs, and database connection strings.
 -   FFmpeg for video processing (See FFmpeg installation guide below).
+-   OpenCV for computer vision tasks like object detection.
 
 ## MongoDB and PyMongo Setup
 
@@ -223,6 +224,30 @@ This command installs both \ `wkhtmltopdf\` and \`wkhtmltoimage\`.
 
 -   **For Other Operating Systems**:
     Visit the [wkhtmltopdf downloads page](https://wkhtmltopdf.org/downloads.html) to download and install it for your operating system. Ensure that \`wkhtmltoimage\` is installed and accessible in your system's PATH.
+
+## Usage of OpenCV
+
+OpenCV (Open Source Computer Vision Library) is an open-source computer vision and machine learning software library. It's a key library for computer vision tasks and is used extensively in real-world applications and projects.
+
+### Purpose of OpenCV in This Project
+
+In this project, OpenCV is utilized for processing and analyzing video frames. We use it to detect and track the basketball in video footage by analyzing each frame for color and shape patterns that match a basketball. OpenCV provides robust tools for image transformation, contour detection, and color space conversion, which are crucial for the detection algorithm.
+
+### Installation Instructions
+
+To run the scripts in this project, you need to have OpenCV installed in your Python environment. You can install OpenCV using pip, which is the Python package installer. Follow these steps to install:
+
+1. Open your command line interface (CLI).
+2. Ensure that you have Python and pip installed on your system. You can check this by running `python --version` and `pip --version` in the CLI.
+3. Install the OpenCV Python package by running the following command:
+
+```bash
+pip install opencv-python
+```
+
+4. Once the installation is complete, you can verify it by running `pip show opencv-python` in the CLI, which will display information about the installed package.
+
+After installing OpenCV, you can run the scripts included in this project to detect and track the basketball in the provided video footage.
 
 ### Usage in the Project
 

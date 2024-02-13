@@ -14,6 +14,7 @@ from common.utilities import get_files_in_directory
 from common.utilities import test_twitter
 from common.video_editor import VideoEditor
 from common.utilities import json_stats_to_html_image
+from common.image_processor import ImageProcessor
 from common.logger import logger
 
 OUTPUT_DIR = "output"
@@ -157,10 +158,12 @@ def main(
         #     keywords,
         #     max_games,
         # )
-        input_video = "/home/irving/webdev/irving/sportlight/output/nba/videos/2024-02-12/SAS@TOR/361_00:40_Wembanyama BLOCK .mp4"
-        VideoEditor.edit_video(
-            input_video, f"{OUTPUT_NBA_VIDEOS_DIR}/video_transition.mp4"
-        )
+        # input_video = "/home/irving/webdev/irving/sportlight/output/nba/videos/2024-02-12/SAS@TOR/361_00:40_Wembanyama BLOCK .mp4"
+        # VideoEditor.edit_video(
+        #     input_video, f"{OUTPUT_NBA_VIDEOS_DIR}/video_transition.mp4"
+        # )
+        imageprocessor = ImageProcessor()
+        imageprocessor.detect_video_basketball()
     else:
         logger.console(f"Currently, we only support NBA. You entered: {league}")
 
