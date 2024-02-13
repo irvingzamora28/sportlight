@@ -254,6 +254,15 @@ This command will discover and run all test cases in the \`tests\` directory.
 -   Customizable video templates for different leagues.
 -   Social media integration for direct sharing.
 
+## TODO
+
+-   [ ] Allow customizing player/team logos and colors for stats table creation
+-   [ ] In decisively close games in the end, include the latests plays until the game ends
+-   [ ] Add caching for downloaded media files to avoid redundant downloads
+-   [ ] Allow creating player video highlights for various games throughout a season
+-   [ ] Add support for multiple video templates that can be selected (portrait, landscape etc.)
+-   [ ] Add support for additional sports leagues beyond NBA
+
 ## Contribution Guidelines
 
 -   Follow PEP8 standards for Python code.
