@@ -1,11 +1,13 @@
 import regex
 import requests
+import urllib.parse
 from common.logger import logger
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import (
     TimeoutException,
     NoSuchElementException,
@@ -14,6 +16,76 @@ from selenium.common.exceptions import (
 import os
 import time
 import imgkit
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+import json
+from parser.json_parser import JSONParser
+
+
+def test_twitter():
+    # Set up Chrome options
+    options = Options()
+    options.add_argument("--no-sandbox")  # This can help in a Linux environment
+    options.add_argument(
+        "--disable-dev-shm-usage"
+    )  # This can also help in a Linux environment
+
+    # Enable performance logging
+    perf_logging_prefs = {
+        "enableNetwork": True,
+        "enablePage": False,
+    }
+    options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
+    options.add_experimental_option("perfLoggingPrefs", perf_logging_prefs)
+
+    # Initialize the driver with the appropriate options to access network logs
+    driver = webdriver.Chrome(options=options)
+
+    # Navigate to the Twitter page
+    driver.get("https://twitter.com/Ballislife/status/1757227480111313193")
+
+    # Wait for the necessary network requests to complete
+    time.sleep(10)  # Adjust the sleep time as necessary
+
+    # Retrieve the network logs
+    logs = driver.get_log("performance")
+
+    # Iterate through the logs to find the desired request payload
+    for entry in logs:
+        log = json.loads(entry["message"])["message"]
+        if log["method"] == "Network.requestWillBeSent":
+            if "request" in log["params"] and "url" in log["params"]["request"]:
+                url = log["params"]["request"]["url"]
+                if url == "https://api.twitter.com/1.1/jot/client_event.json":
+                    logger.info("Payload found:")
+                    if "postData" in log["params"]["request"]:
+                        # logger.info(log["params"]["request"]["postData"])
+                        # This is the URL-encoded data you've captured
+                        encoded_data = log["params"]["request"]["postData"]
+                        # Decode the URL-encoded data
+                        decoded_data = urllib.parse.unquote(encoded_data)
+
+                        # The data appears to be in JSON format within the 'log' parameter, so parse it
+                        parsed_data = urllib.parse.parse_qs(decoded_data)
+                        json_data = json.loads(parsed_data["log"][0])
+
+                        # Now, extract the media_asset_url from the JSON data
+                        # Check if json_data[0] exists
+                        if json_data and len(json_data) > 0:
+                            if (
+                                "items" in json_data[0]
+                                and len(json_data[0]["items"]) > 0
+                            ):
+                                value = JSONParser.extract_value(
+                                    json_data[0]["items"][0], ["media_asset_url"]
+                                )
+                                if value:
+                                    logger.console(f"Video URL found: {value}")
+                    else:
+                        logger.info("No postData in this request")
+
+    # Quit the driver
+    driver.quit()
 
 
 def get_files_in_directory(directory):

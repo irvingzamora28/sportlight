@@ -11,6 +11,7 @@ from data_processor.nba.box_score_data_processor import BoxScoreDataProcessor
 from common.player_data_utilities import PlayerDataUtils
 from common.video_downloader import VideoDownloader
 from common.utilities import get_files_in_directory
+from common.utilities import test_twitter
 from common.video_editor import VideoEditor
 from common.utilities import json_stats_to_html_image
 from common.logger import logger
