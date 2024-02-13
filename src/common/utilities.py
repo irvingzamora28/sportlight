@@ -423,7 +423,7 @@ def process_play_by_play_video_rows(
                 # Remove from title everything inside parenthesis
                 if video_event_page_url:
                     video_event_data = {
-                        "pos": f"{video_event_pos:0>3}",
+                        "pos": video_event_pos.split("/")[0].strip().zfill(3),
                         "title": video_event_title,
                         "clock": video_event_clock,
                         "page_url": video_event_page_url,
