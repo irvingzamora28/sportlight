@@ -148,14 +148,18 @@ def main(
     league, date, special_keywords, players, words_to_exclude, keywords, max_games
 ):
     if league.upper() == "NBA":
-        handle_nba(
-            league,
-            date,
-            special_keywords,
-            players,
-            words_to_exclude,
-            keywords,
-            max_games,
+        # handle_nba(
+        #     league,
+        #     date,
+        #     special_keywords,
+        #     players,
+        #     words_to_exclude,
+        #     keywords,
+        #     max_games,
+        # )
+        input_video = "/home/irving/webdev/irving/sportlight/output/nba/videos/2024-02-12/SAS@TOR/361_00:40_Wembanyama BLOCK .mp4"
+        VideoEditor.edit_video(
+            input_video, f"{OUTPUT_NBA_VIDEOS_DIR}/video_transition.mp4"
         )
     else:
         logger.console(f"Currently, we only support NBA. You entered: {league}")

@@ -6,10 +6,12 @@ from moviepy.editor import (
     CompositeVideoClip,
     CompositeAudioClip,
     ImageClip,
+    vfx,
 )
 from common.utilities import json_stats_to_html_image
 import ffmpeg
 import traceback
+import numpy as np
 from common.logger import logger
 
 MAX_DURATION = 8  # Maximum duration of each clip in seconds
@@ -121,6 +123,89 @@ class VideoEditor:
         except Exception as e:
             logger.error(f"An error occurred: {e}")
             traceback.print_exc()
+
+    @staticmethod
+    def edit_video(video_path, output_path):
+        # Load your video
+        clip = VideoFileClip(video_path)
+
+        # Example ball positions with time (milliseconds)
+        # Format: {time_in_milliseconds: x_coordinate, ...}
+        ball_positions = {
+            0: 500,
+            3000: 105,  # 1 second
+            3000: 750,  # 3 seconds
+            6000: 450,  # 6 seconds
+            # ... more time points (in milliseconds) and their corresponding x-coordinates
+        }
+
+        # Calculate the new width for a 9:16 aspect ratio
+        new_width = int(clip.size[1] * 9 / 16)
+
+        # Apply horizontal panning effect with smooth motion
+        panned_clip = horizontal_pan_with_smooth_motion(clip, ball_positions, new_width)
+
+        # Export the video with the panning effect
+        panned_clip.write_videofile(output_path, codec="libx264", fps=24)
+
+
+def horizontal_pan(clip, start_x, end_x, new_width):
+    # This function returns a new clip with horizontal panning
+    def make_frame(t):
+        # Calculate the current x position for cropping
+        current_x = start_x + (end_x - start_x) * t / clip.duration
+
+        # Ensure the position stays within bounds
+        current_x = max(0, min(current_x, clip.size[0] - new_width))
+
+        # Crop and return the frame
+        return clip.crop(
+            x1=current_x, y1=0, x2=current_x + new_width, y2=clip.size[1]
+        ).get_frame(t)
+
+    # Create a new clip with the modified frames
+    new_clip = clip.fl(lambda gf, t: make_frame(t))
+    return new_clip
+
+
+def horizontal_pan_with_smooth_motion(
+    clip, ball_positions, new_width, ease_factor=0.05
+):
+    # Convert ball_positions to arrays for interpolation
+    times = np.array(list(ball_positions.keys()))
+    positions = np.array([ball_positions[t] for t in times])
+
+    # Current position of the camera
+    current_camera_x = 0
+
+    # This function applies a horizontal panning effect based on the ball's position
+    def make_frame(t):
+        nonlocal current_camera_x
+
+        # Convert t to milliseconds
+        t_milliseconds = t * 1000
+
+        # Interpolate to find the ball's position at time t
+        target_x = np.interp(t_milliseconds, times, positions)
+
+        # Smoothly adjust the camera's position towards the target
+        # using an easing factor for gradual movement
+        current_camera_x += (target_x - current_camera_x) * ease_factor
+
+        # Calculate the left x-coordinate of the cropping area
+        # so that the ball is centered
+        current_x = max(
+            0, min(current_camera_x - new_width // 2, clip.size[0] - new_width)
+        )
+
+        # Crop and return the frame
+        return clip.crop(
+            x1=current_x, y1=0, x2=current_x + new_width, y2=clip.size[1]
+        ).get_frame(t)
+
+    # Create a new clip with the modified frames
+    new_clip = clip.fl(lambda gf, t: make_frame(t))
+    return new_clip
 
 
 def resize(input_file, output_file, width, height):
