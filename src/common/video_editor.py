@@ -125,19 +125,9 @@ class VideoEditor:
             traceback.print_exc()
 
     @staticmethod
-    def edit_video(video_path, output_path):
+    def edit_video(video_path, output_path, ball_positions):
         # Load your video
         clip = VideoFileClip(video_path)
-
-        # Example ball positions with time (milliseconds)
-        # Format: {time_in_milliseconds: x_coordinate, ...}
-        ball_positions = {
-            0: 500,
-            3000: 105,  # 1 second
-            3000: 750,  # 3 seconds
-            6000: 450,  # 6 seconds
-            # ... more time points (in milliseconds) and their corresponding x-coordinates
-        }
 
         # Calculate the new width for a 9:16 aspect ratio
         new_width = int(clip.size[1] * 9 / 16)
