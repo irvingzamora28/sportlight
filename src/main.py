@@ -36,9 +36,9 @@ def process_game_data(
     game_data,
     date,
     special_keywords,
-    keywords,
     players,
     words_to_exclude,
+    keywords,
     max_games=None,
 ):
     for idx, game_card in enumerate(game_data):
@@ -57,6 +57,7 @@ def process_game_data(
         game_tags = game_data_processor.get_game_tags(tags_path)
         game_id = game_data_processor.get_game_id()
         logger.console(f"Game ID: {game_id}")
+        logger.console(f"Words to exclude: {words_to_exclude}")
         game_slug = game_data_processor.get_game_slug(
             [
                 "gameCard",
@@ -89,14 +90,18 @@ def process_game_data(
                 "personId", key_players, lead_stats_players
             )
 
-            players = PlayerDataUtils.get_players_lastnames(all_key_players)
+        all_players_lastnames = PlayerDataUtils.get_players_lastnames(all_key_players)
 
         play_by_play_url = game_data_processor.get_play_by_play_url(actions)
         logger.console(
             f"Looking for special_keywords in play by play: {special_keywords}"
         )
         play_by_play_data = fetch_game_play_by_play_data(
-            play_by_play_url, special_keywords, players, words_to_exclude, keywords
+            play_by_play_url,
+            special_keywords,
+            all_players_lastnames,
+            words_to_exclude,
+            keywords,
         )
 
         for event_data in play_by_play_data:
@@ -118,7 +123,7 @@ def process_game_data(
 
 
 def handle_nba(
-    league, date, special_keywords, keywords, players, words_to_exclude, max_games
+    league, date, special_keywords, players, words_to_exclude, keywords, max_games
 ):
     try:
         init_directories(date)
@@ -128,9 +133,9 @@ def handle_nba(
                 game_data,
                 date,
                 special_keywords,
-                keywords,
                 players,
                 words_to_exclude,
+                keywords,
                 max_games,
             )
         else:
@@ -140,16 +145,16 @@ def handle_nba(
 
 
 def main(
-    league, date, special_keywords, keywords, players, words_to_exclude, max_games
+    league, date, special_keywords, players, words_to_exclude, keywords, max_games
 ):
     if league.upper() == "NBA":
         handle_nba(
             league,
             date,
             special_keywords,
-            keywords,
             players,
             words_to_exclude,
+            keywords,
             max_games,
         )
     else:
@@ -204,8 +209,8 @@ if __name__ == "__main__":
         args.league,
         args.date,
         args.special_keywords,
-        args.keywords,
         args.players,
         args.words_to_exclude,
+        args.keywords,
         args.max_games,
     )
