@@ -3,6 +3,7 @@ import numpy as np
 from common.utilities import get_files_in_directory
 from common.logger import logger
 import math
+import torch
 
 
 class ImageProcessor:
@@ -131,4 +132,86 @@ class ImageProcessor:
         # Print the detections
         for timestamp, x_coord in basketball_detections.items():
             print(f"{timestamp}: {x_coord}")
+        return basketball_detections
+
+    def detect_video_basketball_pytorch(self, video_path):
+        model = torch.hub.load("ultralytics/yolov5", "yolov5l", pretrained=True)
+
+        # Load video
+        cap = cv2.VideoCapture(video_path)
+
+        # Get lower_hsv and upper_hsv
+        lower_hsv, upper_hsv = self.get_average_hsv("resources/image/basketball_sample")
+
+        # Initialize a dictionary for detections
+        basketball_detections = {}
+
+        # Get the frame rate of the video
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+        frame_number = 0
+
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            # Detect objects in the frame
+            results = model(frame)
+
+            # Process and display results
+            for det in results.xyxy[0]:
+                # Extract the bounding box and class label
+                x1, y1, x2, y2, conf, cls_id = det
+                label = results.names[int(cls_id)]
+
+                # Filter for 'sports ball'
+                if label == "sports ball":
+                    # Inside YOLO detection loop after identifying 'sports ball'
+                    x1, y1, x2, y2 = map(int, det[:4])
+                    cropped_frame = frame[y1:y2, x1:x2]
+                    hsv_frame = cv2.cvtColor(cropped_frame, cv2.COLOR_BGR2HSV)
+                    mask = cv2.inRange(hsv_frame, lower_hsv, upper_hsv)
+
+                    # Morphological opening
+                    kernel = np.ones((5, 5), np.uint8)
+                    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+
+                    # Find contours
+                    contours, _ = cv2.findContours(
+                        mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
+                    )
+                    for contour in contours:
+                        # Draw circle on original frame
+                        (x, y), radius = cv2.minEnclosingCircle(contour)
+                        center = (
+                            int(x) + x1,
+                            int(y) + y1,
+                        )  # Adjust coordinates for original frame
+                        # Calculate the timestamp for the current frame
+                        timestamp = int(
+                            round(frame_number / fps * 1000)
+                        )  # Convert to milliseconds
+
+                        # Store the x-coordinate of the detected basketball's center
+                        basketball_detections[timestamp] = center[0]
+
+            frame_number += 1
+            # Calculate and display progress
+            progress = (frame_number / total_frames) * 100
+            print(
+                f"Processing: {frame_number}/{total_frames} frames ({progress:.2f}%)",
+                end="\r",
+            )
+
+            if cv2.waitKey(1) == ord("q"):
+                break
+
+        cap.release()
+        cv2.destroyAllWindows()
+        # Outside the while loop
+        for timestamp, x_coord in basketball_detections.items():
+            print(f"{timestamp}: {x_coord}")
+
         return basketball_detections
