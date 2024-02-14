@@ -26,6 +26,7 @@ Sportlight is an innovative project aimed at generating highlight videos from va
     -   seaborn
     -   scipy>=1.4.1
     -   torch, torchvision, torchaudio (for CPU version)
+    -   PyQt5 for GUI development
 -   MongoDB database setup for data storage.
 -   .env file for API, base URLs, and database connection strings.
 -   FFmpeg for video processing (See FFmpeg installation guide below).
@@ -35,6 +36,7 @@ Sportlight is an innovative project aimed at generating highlight videos from va
 ```bash
 pip install requests BeautifulSoup dotenv moviepy pymongo pandas matplotlib seaborn
 pip install 'scipy>=1.4.1'
+pip install PyQt5 pyqt5-tools opencv-python
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 ```
 
@@ -265,6 +267,29 @@ pip install opencv-python
 4. Once the installation is complete, you can verify it by running `pip show opencv-python` in the CLI, which will display information about the installed package.
 
 After installing OpenCV, you can run the scripts included in this project to detect and track the basketball in the provided video footage.
+
+## Usage of PyQt for GUI Development
+
+PyQt is a set of Python bindings for the Qt application framework and runs on all platforms supported by Qt including Windows, macOS, Linux, iOS, and Android. PyQt is used in this project to create a user-friendly GUI for manual adjustment and verification of basketball positions in video frames.
+
+### Installation Instructions
+
+To set up the PyQt environment for this project, follow these steps:
+
+1. Open your command line interface (CLI).
+2. Install PyQt5 using pip:
+
+```bash
+pip install PyQt5
+```
+
+3. Verify the installation:
+
+```bash
+pip show PyQt5
+```
+
+This will display information about the installed PyQt package.
 
 ### Usage in the Project
 
