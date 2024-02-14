@@ -15,11 +15,28 @@ Sportlight is an innovative project aimed at generating highlight videos from va
 ## Setup and Requirements
 
 -   Python 3.x
--   Libraries: requests, BeautifulSoup, dotenv, moviepy, pymongo
+-   Libraries:
+    -   requests
+    -   BeautifulSoup
+    -   dotenv
+    -   moviepy
+    -   pymongo
+    -   pandas
+    -   matplotlib
+    -   seaborn
+    -   scipy>=1.4.1
+    -   torch, torchvision, torchaudio (for CPU version)
 -   MongoDB database setup for data storage.
 -   .env file for API, base URLs, and database connection strings.
 -   FFmpeg for video processing (See FFmpeg installation guide below).
 -   OpenCV for computer vision tasks like object detection.
+-   Installation of Python Libraries:
+
+```bash
+pip install requests BeautifulSoup dotenv moviepy pymongo pandas matplotlib seaborn
+pip install 'scipy>=1.4.1'
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+```
 
 ## MongoDB and PyMongo Setup
 

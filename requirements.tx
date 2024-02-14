@@ -6,3 +6,8 @@ selenium
 imgkit
 pymongo
 opencv-python
+pandas
+matplotlib
+seaborn
+scipy>=1.4.1
+torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
