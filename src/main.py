@@ -158,17 +158,41 @@ def main(
         #     keywords,
         #     max_games,
         # )
-        input_video = "/home/irving/webdev/irving/sportlight/output/nba/videos/2024-02-13/BOS@BKN/234_01:12_Tatum 1' Running Dunk .mp4"
+        input_video = "/home/irving/webdev/irving/sportlight/output/nba/videos/175_06:28_James 2' Running Dunk .mp4"
         imageprocessor = ImageProcessor()
-        # basketball_detections = imageprocessor.detect_video_basketball(input_video)
-        basketball_detections = imageprocessor.detect_video_basketball_pytorch(
-            input_video
+        # read basketball_detections
+        basketball_detections_filename = (
+            os.path.basename(input_video).split(".")[0] + "_detections.json"
         )
+        basketball_detections = {}
+
+        with open(basketball_detections_filename) as f:
+            basketball_detections_data = json.load(f)
+            basketball_detections = {
+                int(k): v for k, v in basketball_detections_data.items()
+            }
+
+        logger.console(
+            f"Loaded {len(basketball_detections)} basketball frame detections from {basketball_detections_filename}"
+        )
+        # basketball_detections = imageprocessor.detect_video_basketball(input_video)
+        # basketball_detections = imageprocessor.detect_video_basketball_pytorch(
+        #     input_video
+        # )
+        imageprocessor.display_x_coord_line_on_video(input_video, basketball_detections)
+        # I need to store the basketball_detections in a json file named with the same name as the input video
+        # basketball_detections_filename = (
+        #     os.path.basename(input_video).split(".")[0] + "_detections.json"
+        # )
+        # # Write detections to json file
+        # with open(basketball_detections_filename, "w") as f:
+        #     json.dump(basketball_detections, f, indent=4)
+
         logger.console(f"Detected {len(basketball_detections)} basketball frames")
         logger.console(f" basketball detections: {basketball_detections}")
         VideoEditor.edit_video(
             input_video,
-            f"{OUTPUT_NBA_VIDEOS_DIR}/video_transition_yolov5_2024_02_13_BOS@12_Tatum.mp4",
+            f"{OUTPUT_NBA_VIDEOS_DIR}/video_transition_yolov5175_06:28_James 2' Running Dunk.mp4",
             basketball_detections,
         )
     else:

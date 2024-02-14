@@ -224,3 +224,73 @@ class ImageProcessor:
             print(f"{timestamp}: {x_coord}")
 
         return basketball_detections
+
+    def draw_line_at_x(self, frame, x_coord):
+        """Draw a blue vertical line at the specified X coordinate."""
+        height = frame.shape[0]
+        cv2.line(frame, (x_coord, 0), (x_coord, height), (255, 0, 0), 2)
+
+    def display_x_coord_line_on_video(self, video_path, x_coordinates):
+        # Load your video
+        cap = cv2.VideoCapture(video_path)
+
+        # Get video dimensions
+        ret, frame = cap.read()
+        video_height, video_width = frame.shape[:2]
+        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Reset to first frame
+
+        # Calculate new width for a 9:16 aspect ratio
+        new_width = int(video_height * 9 / 16)
+
+        # Initialize the last known X coordinate
+        last_known_x_coord = None
+
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            # Get the current timestamp in milliseconds
+            timestamp = int(cap.get(cv2.CAP_PROP_POS_MSEC))
+
+            # Find the closest timestamp in the dictionary
+            closest_timestamp = min(
+                x_coordinates.keys(), key=lambda k: abs(k - timestamp)
+            )
+
+            # Update the last known X coordinate if within the threshold
+            if abs(timestamp - closest_timestamp) < 100:  # 100 ms threshold
+                last_known_x_coord = x_coordinates[closest_timestamp]
+
+            # Use the last known X coordinate if available
+            if last_known_x_coord is not None:
+                x_coord = last_known_x_coord
+
+                # Calculate the viewport edges
+                left_edge = max(
+                    0, min(x_coord - new_width // 2, video_width - new_width)
+                )
+                right_edge = left_edge + new_width
+
+                # Darken areas outside the viewport
+                frame[:, :left_edge] = frame[:, :left_edge] // 2  # Darken left side
+                frame[:, right_edge:] = frame[:, right_edge:] // 2  # Darken right side
+
+                # Draw vertical lines at the edges of the viewport
+                cv2.line(
+                    frame, (left_edge, 0), (left_edge, video_height), (0, 255, 0), 2
+                )
+                cv2.line(
+                    frame, (right_edge, 0), (right_edge, video_height), (0, 255, 0), 2
+                )
+
+                # Draw the blue line at the basketball's position
+                self.draw_line_at_x(frame, x_coord)
+
+            cv2.imshow("Video", frame)
+
+            if cv2.waitKey(25) & 0xFF == ord("q"):
+                break
+
+        cap.release()
+        cv2.destroyAllWindows()
