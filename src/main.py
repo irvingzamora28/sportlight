@@ -158,7 +158,7 @@ def main(
         #     keywords,
         #     max_games,
         # )
-        input_video = "/home/irving/webdev/irving/sportlight/output/nba/videos/2024-02-13/BOS@BKN/final_highlight_logo.mp4"
+        input_video = "/home/irving/webdev/irving/sportlight/output/nba/videos/2024-02-13/BOS@BKN/234_01:12_Tatum 1' Running Dunk .mp4"
         imageprocessor = ImageProcessor()
         # basketball_detections = imageprocessor.detect_video_basketball(input_video)
         basketball_detections = imageprocessor.detect_video_basketball_pytorch(
@@ -168,7 +168,7 @@ def main(
         logger.console(f" basketball detections: {basketball_detections}")
         VideoEditor.edit_video(
             input_video,
-            f"{OUTPUT_NBA_VIDEOS_DIR}/video_transition_yolov5_2024_02_13_BOS@BKN_final_highlight_logo.mp4",
+            f"{OUTPUT_NBA_VIDEOS_DIR}/video_transition_yolov5_2024_02_13_BOS@12_Tatum.mp4",
             basketball_detections,
         )
     else:

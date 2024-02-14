@@ -148,7 +148,6 @@ class ImageProcessor:
 
         # Get the frame rate of the video
         fps = cap.get(cv2.CAP_PROP_FPS)
-        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
         frame_number = 0
 
@@ -189,6 +188,7 @@ class ImageProcessor:
                             int(x) + x1,
                             int(y) + y1,
                         )  # Adjust coordinates for original frame
+                        cv2.circle(frame, center, int(radius), (0, 255, 0), 2)
                         # Calculate the timestamp for the current frame
                         timestamp = int(
                             round(frame_number / fps * 1000)
@@ -197,14 +197,23 @@ class ImageProcessor:
                         # Store the x-coordinate of the detected basketball's center
                         basketball_detections[timestamp] = center[0]
 
-            frame_number += 1
-            # Calculate and display progress
-            progress = (frame_number / total_frames) * 100
-            print(
-                f"Processing: {frame_number}/{total_frames} frames ({progress:.2f}%)",
-                end="\r",
-            )
+                    # Draw a rectangle and put a label on the frame
+                    cv2.rectangle(
+                        frame, (int(x1), int(y1)), (int(x2), int(y2)), (255, 0, 0), 2
+                    )
+                    cv2.putText(
+                        frame,
+                        label,
+                        (int(x1), int(y1 - 10)),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.5,
+                        (255, 0, 0),
+                        2,
+                    )
 
+            frame_number += 1
+            # Display the frame
+            cv2.imshow("Frame", frame)
             if cv2.waitKey(1) == ord("q"):
                 break
 
