@@ -19,6 +19,7 @@ from common.utilities import json_stats_to_html_image
 from common.image_processor import ImageProcessor
 from common.logger import logger
 from common.video_player import VideoPlayer
+from common.video_gui import BasketballVideoGUI
 
 OUTPUT_DIR = "output"
 NBA_DIR = "nba"
@@ -152,11 +153,13 @@ def main(
     league, date, special_keywords, players, words_to_exclude, keywords, max_games
 ):
     if league.upper() == "NBA":
-        app = QApplication(sys.argv)
-        player = VideoPlayer()
-        player.resize(640, 480)
-        player.show()
-        sys.exit(app.exec_())
+        input_video = "/home/irving/webdev/irving/sportlight/output/nba/videos/175_06:28_James 2' Running Dunk .mp4"
+        # imageprocessor = ImageProcessor()
+
+        # Usage:
+        gui = BasketballVideoGUI(input_video)
+        gui.run()
+
         # handle_nba(
         #     league,
         #     date,
@@ -166,9 +169,8 @@ def main(
         #     keywords,
         #     max_games,
         # )
-        # input_video = "/home/irving/webdev/irving/sportlight/output/nba/videos/175_06:28_James 2' Running Dunk .mp4"
-        # imageprocessor = ImageProcessor()
-        # # read basketball_detections
+
+        # READ BASKETBALL_DETECTIONS
         # basketball_detections_filename = (
         #     os.path.basename(input_video).split(".")[0] + "_detections.json"
         # )
@@ -179,15 +181,17 @@ def main(
         #     basketball_detections = {
         #         int(k): v for k, v in basketball_detections_data.items()
         #     }
-
         # logger.console(
         #     f"Loaded {len(basketball_detections)} basketball frame detections from {basketball_detections_filename}"
         # )
+
+        # DETECT BASKETBALL
         # basketball_detections = imageprocessor.detect_video_basketball(input_video)
         # basketball_detections = imageprocessor.detect_video_basketball_pytorch(
         #     input_video
         # )
         # imageprocessor.display_x_coord_line_on_video(input_video, basketball_detections)
+
         # I need to store the basketball_detections in a json file named with the same name as the input video
         # basketball_detections_filename = (
         #     os.path.basename(input_video).split(".")[0] + "_detections.json"
