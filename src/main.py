@@ -156,8 +156,21 @@ def main(
         input_video = "/home/irving/webdev/irving/sportlight/output/nba/videos/175_06:28_James 2' Running Dunk .mp4"
         # imageprocessor = ImageProcessor()
 
-        # Usage:
-        gui = BasketballVideoGUI(input_video)
+        # READ BASKETBALL_DETECTIONS
+        basketball_detections_filename = (
+            os.path.basename(input_video).split(".")[0] + "_detections.json"
+        )
+        basketball_detections = {}
+
+        with open(basketball_detections_filename) as f:
+            basketball_detections_data = json.load(f)
+            basketball_detections = {
+                int(k): v for k, v in basketball_detections_data.items()
+            }
+        logger.console(
+            f"Loaded {len(basketball_detections)} basketball frame detections from {basketball_detections_filename}"
+        )
+        gui = BasketballVideoGUI(input_video, basketball_detections)
         gui.run()
 
         # handle_nba(
@@ -168,21 +181,6 @@ def main(
         #     words_to_exclude,
         #     keywords,
         #     max_games,
-        # )
-
-        # READ BASKETBALL_DETECTIONS
-        # basketball_detections_filename = (
-        #     os.path.basename(input_video).split(".")[0] + "_detections.json"
-        # )
-        # basketball_detections = {}
-
-        # with open(basketball_detections_filename) as f:
-        #     basketball_detections_data = json.load(f)
-        #     basketball_detections = {
-        #         int(k): v for k, v in basketball_detections_data.items()
-        #     }
-        # logger.console(
-        #     f"Loaded {len(basketball_detections)} basketball frame detections from {basketball_detections_filename}"
         # )
 
         # DETECT BASKETBALL
