@@ -59,8 +59,34 @@ class BasketballVideoGUI:
     def draw_timeline(self, frame):
         timeline_color = (255, 255, 255)
         cv2.line(frame, (100, 480), (700, 480), timeline_color, 2)
+
+        # Draw regular timeline intervals
         for i in range(100, 701, 100):
             cv2.line(frame, (i, 470), (i, 490), timeline_color, 2)
+
+        # Iterate through x_coordinates to draw timestamps
+        for timestamp, x_coord in self.x_coordinates.items():
+            # Convert timestamp to position on the timeline
+            position = (
+                int((timestamp / (self.total_frames / self.fps * 1000)) * 600) + 100
+            )
+
+            # Check if the position is within the timeline bounds
+            if 100 <= position <= 700:
+                cv2.line(frame, (position, 470), (position, 490), (0, 255, 0), 2)
+
+                # Optional: Draw the timestamp text
+                cv2.putText(
+                    frame,
+                    str(timestamp),
+                    (position - 15, 460),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.3,
+                    (0, 255, 0),
+                    1,
+                )
+
+        # Highlight the current position on the timeline
         current_frame = self.cap.get(cv2.CAP_PROP_POS_FRAMES)
         current_position = int((current_frame / self.total_frames) * 600) + 100
         cv2.line(
