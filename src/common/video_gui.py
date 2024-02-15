@@ -116,42 +116,48 @@ class BasketballVideoGUI:
                 if not ret:
                     break
 
-            # Get the current timestamp in milliseconds
-            timestamp = int(self.cap.get(cv2.CAP_PROP_POS_MSEC))
+                # Get the current timestamp in milliseconds
+                timestamp = int(self.cap.get(cv2.CAP_PROP_POS_MSEC))
 
-            # Find the closest timestamp in the dictionary
-            closest_timestamp = min(
-                self.x_coordinates.keys(), key=lambda k: abs(k - timestamp)
-            )
-
-            # Update the last known X coordinate if within the threshold
-            if abs(timestamp - closest_timestamp) < 100:  # 100 ms threshold
-                last_known_x_coord = self.x_coordinates[closest_timestamp]
-
-            # Use the last known X coordinate if available
-            if last_known_x_coord is not None:
-                x_coord = last_known_x_coord
-
-                # Calculate the viewport edges
-                left_edge = max(
-                    0, min(x_coord - new_width // 2, video_width - new_width)
-                )
-                right_edge = left_edge + new_width
-
-                # Darken areas outside the viewport
-                frame[:, :left_edge] = frame[:, :left_edge] // 2  # Darken left side
-                frame[:, right_edge:] = frame[:, right_edge:] // 2  # Darken right side
-
-                # Draw vertical lines at the edges of the viewport
-                cv2.line(
-                    frame, (left_edge, 0), (left_edge, video_height), (0, 255, 0), 2
-                )
-                cv2.line(
-                    frame, (right_edge, 0), (right_edge, video_height), (0, 255, 0), 2
+                # Find the closest timestamp in the dictionary
+                closest_timestamp = min(
+                    self.x_coordinates.keys(), key=lambda k: abs(k - timestamp)
                 )
 
-                # Draw the blue line at the basketball's position
-                self.draw_line_at_x(frame, x_coord)
+                # Update the last known X coordinate if within the threshold
+                if abs(timestamp - closest_timestamp) < 100:  # 100 ms threshold
+                    last_known_x_coord = self.x_coordinates[closest_timestamp]
+
+                # Use the last known X coordinate if available
+                if last_known_x_coord is not None:
+                    x_coord = last_known_x_coord
+
+                    # Calculate the viewport edges
+                    left_edge = max(
+                        0, min(x_coord - new_width // 2, video_width - new_width)
+                    )
+                    right_edge = left_edge + new_width
+
+                    # Darken areas outside the viewport
+                    frame[:, :left_edge] = frame[:, :left_edge] // 2  # Darken left side
+                    frame[:, right_edge:] = (
+                        frame[:, right_edge:] // 2
+                    )  # Darken right side
+
+                    # Draw vertical lines at the edges of the viewport
+                    cv2.line(
+                        frame, (left_edge, 0), (left_edge, video_height), (0, 255, 0), 2
+                    )
+                    cv2.line(
+                        frame,
+                        (right_edge, 0),
+                        (right_edge, video_height),
+                        (0, 255, 0),
+                        2,
+                    )
+
+                    # Draw the blue line at the basketball's position
+                    self.draw_line_at_x(frame, x_coord)
 
             self.draw_play_pause_button(frame)
             self.draw_timeline(frame)
