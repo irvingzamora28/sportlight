@@ -1,10 +1,14 @@
 import cv2
 
-# Constants for button coordinates
-PLAY_PAUSE_BUTTON_TOP_LEFT = (20, 430)
-PLAY_PAUSE_BUTTON_BOTTOM_RIGHT = (70, 480)
-TIMELINE_TOP = 450
-TIMELINE_BOTTOM = 500
+# Constants for layout
+BUTTON_WIDTH = 50
+BUTTON_HEIGHT = 50
+TIMELINE_LENGTH = 600
+TIMELINE_HEIGHT = 20
+
+# Constants for vertical position from the bottom of the window
+BUTTON_BOTTOM_OFFSET = 30
+TIMELINE_BOTTOM_OFFSET = 10
 
 
 class BasketballVideoGUI:
@@ -13,43 +17,61 @@ class BasketballVideoGUI:
         self.x_coordinates = x_coordinates
         self.playing = True
         self.cap = cv2.VideoCapture(video_file)
+
+        if not self.cap.isOpened():
+            raise ValueError("Video file could not be opened")
+
+        # Initialize window height
+        ret, frame = self.cap.read()
+        if not ret:
+            raise ValueError("Could not read the video file")
+
+        # Here we're assuming that the height of the video frame is the height of the window
+        self.window_height = frame.shape[0]
+
+        # Other initializations...
         self.fps = self.cap.get(cv2.CAP_PROP_FPS)
         self.total_frames = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
-
         cv2.namedWindow("Basketball Video GUI")
         cv2.setMouseCallback("Basketball Video GUI", self.mouse_callback)
 
     def mouse_callback(self, event, x, y, flags, param):
+        # Calculate the Y coordinates for the button and timeline
+        button_top = self.window_height - BUTTON_BOTTOM_OFFSET - BUTTON_HEIGHT
+        button_bottom = self.window_height - BUTTON_BOTTOM_OFFSET
+        timeline_top = self.window_height - TIMELINE_BOTTOM_OFFSET - TIMELINE_HEIGHT
+        timeline_bottom = self.window_height - TIMELINE_BOTTOM_OFFSET
+
         if event == cv2.EVENT_LBUTTONDOWN:
-            if (
-                PLAY_PAUSE_BUTTON_TOP_LEFT[0] <= x <= PLAY_PAUSE_BUTTON_BOTTOM_RIGHT[0]
-                and PLAY_PAUSE_BUTTON_TOP_LEFT[1]
-                <= y
-                <= PLAY_PAUSE_BUTTON_BOTTOM_RIGHT[1]
-            ):
+            print(f"Clicked at x={x}, y={y}")
+            # Check if the click is within the play/pause button area
+            if 20 <= x <= 20 + BUTTON_WIDTH and button_top <= y <= button_bottom:
                 self.playing = not self.playing
-            elif TIMELINE_TOP <= y <= TIMELINE_BOTTOM:
-                clicked_frame = int(((x - 100) / 600) * self.total_frames)
+            # Check if the click is within the timeline area
+            elif (
+                20 <= x <= 20 + TIMELINE_LENGTH and timeline_top <= y <= timeline_bottom
+            ):
+                clicked_frame = int(((x - 20) / TIMELINE_LENGTH) * self.total_frames)
                 self.cap.set(cv2.CAP_PROP_POS_FRAMES, clicked_frame)
 
     def draw_play_pause_button(self, frame):
+        video_height = frame.shape[0]
         button_color = (255, 255, 255)
         button_text_color = (0, 0, 0)
         if self.playing:
             button_text = "Pause"
         else:
             button_text = "Play"
-        cv2.rectangle(
-            frame,
-            PLAY_PAUSE_BUTTON_TOP_LEFT,
-            PLAY_PAUSE_BUTTON_BOTTOM_RIGHT,
-            button_color,
-            -1,
-        )
+
+        # Calculate top-left position based on the window size
+        top_left = (20, video_height - BUTTON_BOTTOM_OFFSET - BUTTON_HEIGHT)
+        bottom_right = (top_left[0] + BUTTON_WIDTH, top_left[1] + BUTTON_HEIGHT)
+
+        cv2.rectangle(frame, top_left, bottom_right, button_color, -1)
         cv2.putText(
             frame,
             button_text,
-            (PLAY_PAUSE_BUTTON_TOP_LEFT[0] + 5, PLAY_PAUSE_BUTTON_TOP_LEFT[1] + 25),
+            (top_left[0] + 5, top_left[1] + 30),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.5,
             button_text_color,
@@ -57,29 +79,41 @@ class BasketballVideoGUI:
         )
 
     def draw_timeline(self, frame):
+        video_height = frame.shape[0]
         timeline_color = (255, 255, 255)
-        cv2.line(frame, (100, 480), (700, 480), timeline_color, 2)
 
-        # Draw regular timeline intervals
-        for i in range(100, 701, 100):
-            cv2.line(frame, (i, 470), (i, 490), timeline_color, 2)
+        # Calculate start and end positions based on the window size
+        start_x = 20
+        start_y = video_height - TIMELINE_BOTTOM_OFFSET
+        end_x = start_x + TIMELINE_LENGTH
 
-        # Iterate through x_coordinates to draw timestamps
+        cv2.line(frame, (start_x, start_y), (end_x, start_y), timeline_color, 2)
+
+        # Draw timestamps from x_coordinates
         for timestamp, x_coord in self.x_coordinates.items():
             # Convert timestamp to position on the timeline
             position = (
-                int((timestamp / (self.total_frames / self.fps * 1000)) * 600) + 100
+                int(
+                    (timestamp / (self.total_frames / self.fps * 1000))
+                    * TIMELINE_LENGTH
+                )
+                + start_x
             )
 
             # Check if the position is within the timeline bounds
-            if 100 <= position <= 700:
-                cv2.line(frame, (position, 470), (position, 490), (0, 255, 0), 2)
-
+            if start_x <= position <= end_x:
+                cv2.line(
+                    frame,
+                    (position, start_y - 10),
+                    (position, start_y + 10),
+                    (0, 255, 0),
+                    2,
+                )
                 # Optional: Draw the timestamp text
                 cv2.putText(
                     frame,
                     str(timestamp),
-                    (position - 15, 460),
+                    (position - 15, start_y - 15),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.3,
                     (0, 255, 0),
@@ -88,9 +122,15 @@ class BasketballVideoGUI:
 
         # Highlight the current position on the timeline
         current_frame = self.cap.get(cv2.CAP_PROP_POS_FRAMES)
-        current_position = int((current_frame / self.total_frames) * 600) + 100
+        current_position = (
+            int((current_frame / self.total_frames) * TIMELINE_LENGTH) + start_x
+        )
         cv2.line(
-            frame, (current_position, 470), (current_position, 490), (0, 0, 255), 2
+            frame,
+            (current_position, start_y - 10),
+            (current_position, start_y + 10),
+            (0, 0, 255),
+            2,
         )
 
     def draw_line_at_x(self, frame, x_coord):
