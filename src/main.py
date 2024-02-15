@@ -14,6 +14,7 @@ from common.player_data_utilities import PlayerDataUtils
 from common.video_downloader import VideoDownloader
 from common.utilities import get_files_in_directory
 from common.utilities import test_twitter
+from common.utilities import clean_basketball_coordinates
 from common.video_editor import VideoEditor
 from common.utilities import json_stats_to_html_image
 from common.image_processor import ImageProcessor
@@ -170,7 +171,12 @@ def main(
         logger.console(
             f"Loaded {len(basketball_detections)} basketball frame detections from {basketball_detections_filename}"
         )
-        gui = BasketballVideoGUI(input_video, basketball_detections)
+        logger.console(basketball_detections)
+
+        cleaned_coordinates = clean_basketball_coordinates(basketball_detections)
+        logger.console(cleaned_coordinates)
+
+        gui = BasketballVideoGUI(input_video, cleaned_coordinates)
         gui.run()
 
         # handle_nba(

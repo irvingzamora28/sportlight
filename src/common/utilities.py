@@ -466,6 +466,18 @@ def should_include_row_based_on_filters(
     return False
 
 
+def clean_basketball_coordinates(x_coordinates, min_time_difference=1000):
+    cleaned_coordinates = {}
+    last_timestamp = None
+
+    for timestamp in sorted(x_coordinates.keys()):
+        if last_timestamp is None or timestamp - last_timestamp >= min_time_difference:
+            cleaned_coordinates[timestamp] = x_coordinates[timestamp]
+            last_timestamp = timestamp
+
+    return cleaned_coordinates
+
+
 def json_stats_to_html_image(stats_json, output_image_path):
     """
     Converts player statistics JSON into a styled HTML table and then renders it as an image.
