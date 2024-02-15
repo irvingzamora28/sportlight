@@ -323,6 +323,7 @@ This command will discover and run all test cases in the \`tests\` directory.
 
 ## TODO
 
+-   [ ] Debug, when fetching videos from table row in headless mode, it gets an error
 -   [ ] Allow customizing player/team logos and colors for stats table creation
 -   [ ] In decisively close games in the end, include the latests plays until the game ends
 -   [ ] Add caching for downloaded media files to avoid redundant downloads

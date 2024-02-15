@@ -1,6 +1,8 @@
 import argparse
 import json
 import os
+import sys
+from PyQt5.QtWidgets import QApplication
 from datetime import datetime
 from crawler.nba_crawler import fetch_game_data
 from crawler.nba_crawler import fetch_box_score_data
@@ -16,6 +18,7 @@ from common.video_editor import VideoEditor
 from common.utilities import json_stats_to_html_image
 from common.image_processor import ImageProcessor
 from common.logger import logger
+from common.video_player import VideoPlayer
 
 OUTPUT_DIR = "output"
 NBA_DIR = "nba"
@@ -149,6 +152,11 @@ def main(
     league, date, special_keywords, players, words_to_exclude, keywords, max_games
 ):
     if league.upper() == "NBA":
+        app = QApplication(sys.argv)
+        player = VideoPlayer()
+        player.resize(640, 480)
+        player.show()
+        sys.exit(app.exec_())
         # handle_nba(
         #     league,
         #     date,
@@ -158,28 +166,28 @@ def main(
         #     keywords,
         #     max_games,
         # )
-        input_video = "/home/irving/webdev/irving/sportlight/output/nba/videos/175_06:28_James 2' Running Dunk .mp4"
-        imageprocessor = ImageProcessor()
-        # read basketball_detections
-        basketball_detections_filename = (
-            os.path.basename(input_video).split(".")[0] + "_detections.json"
-        )
-        basketball_detections = {}
+        # input_video = "/home/irving/webdev/irving/sportlight/output/nba/videos/175_06:28_James 2' Running Dunk .mp4"
+        # imageprocessor = ImageProcessor()
+        # # read basketball_detections
+        # basketball_detections_filename = (
+        #     os.path.basename(input_video).split(".")[0] + "_detections.json"
+        # )
+        # basketball_detections = {}
 
-        with open(basketball_detections_filename) as f:
-            basketball_detections_data = json.load(f)
-            basketball_detections = {
-                int(k): v for k, v in basketball_detections_data.items()
-            }
+        # with open(basketball_detections_filename) as f:
+        #     basketball_detections_data = json.load(f)
+        #     basketball_detections = {
+        #         int(k): v for k, v in basketball_detections_data.items()
+        #     }
 
-        logger.console(
-            f"Loaded {len(basketball_detections)} basketball frame detections from {basketball_detections_filename}"
-        )
+        # logger.console(
+        #     f"Loaded {len(basketball_detections)} basketball frame detections from {basketball_detections_filename}"
+        # )
         # basketball_detections = imageprocessor.detect_video_basketball(input_video)
         # basketball_detections = imageprocessor.detect_video_basketball_pytorch(
         #     input_video
         # )
-        imageprocessor.display_x_coord_line_on_video(input_video, basketball_detections)
+        # imageprocessor.display_x_coord_line_on_video(input_video, basketball_detections)
         # I need to store the basketball_detections in a json file named with the same name as the input video
         # basketball_detections_filename = (
         #     os.path.basename(input_video).split(".")[0] + "_detections.json"
@@ -188,13 +196,13 @@ def main(
         # with open(basketball_detections_filename, "w") as f:
         #     json.dump(basketball_detections, f, indent=4)
 
-        logger.console(f"Detected {len(basketball_detections)} basketball frames")
-        logger.console(f" basketball detections: {basketball_detections}")
-        VideoEditor.edit_video(
-            input_video,
-            f"{OUTPUT_NBA_VIDEOS_DIR}/video_transition_yolov5175_06:28_James 2' Running Dunk.mp4",
-            basketball_detections,
-        )
+        # logger.console(f"Detected {len(basketball_detections)} basketball frames")
+        # logger.console(f" basketball detections: {basketball_detections}")
+        # VideoEditor.edit_video(
+        #     input_video,
+        #     f"{OUTPUT_NBA_VIDEOS_DIR}/video_transition_yolov5175_06:28_James 2' Running Dunk.mp4",
+        #     basketball_detections,
+        # )
     else:
         logger.console(f"Currently, we only support NBA. You entered: {league}")
 
