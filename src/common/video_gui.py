@@ -1,13 +1,15 @@
 import cv2
 
 # Constants for layout
-BUTTON_WIDTH = 50
-BUTTON_HEIGHT = 50
+PLAY_PAUSE_BUTTON_WIDTH = 50
+PLAY_PAUSE_BUTTON_HEIGHT = 50
+KEYFRAME_BUTTON_LEFT = 80
+KEYFRAME_BUTTON_WIDTH = 100
 TIMELINE_LENGTH = 600
 TIMELINE_HEIGHT = 20
 
 # Constants for vertical position from the bottom of the window
-BUTTON_BOTTOM_OFFSET = 30
+BUTTONS_BOTTOM_OFFSET = 30
 TIMELINE_BOTTOM_OFFSET = 10
 
 
@@ -37,15 +39,20 @@ class BasketballVideoGUI:
 
     def mouse_callback(self, event, x, y, flags, param):
         # Calculate the Y coordinates for the button and timeline
-        button_top = self.window_height - BUTTON_BOTTOM_OFFSET - BUTTON_HEIGHT
-        button_bottom = self.window_height - BUTTON_BOTTOM_OFFSET
+        button_top = (
+            self.window_height - BUTTONS_BOTTOM_OFFSET - PLAY_PAUSE_BUTTON_HEIGHT
+        )
+        button_bottom = self.window_height - BUTTONS_BOTTOM_OFFSET
         timeline_top = self.window_height - TIMELINE_BOTTOM_OFFSET - TIMELINE_HEIGHT
         timeline_bottom = self.window_height - TIMELINE_BOTTOM_OFFSET
 
         if event == cv2.EVENT_LBUTTONDOWN:
             print(f"Clicked at x={x}, y={y}")
             # Check if the click is within the play/pause button area
-            if 20 <= x <= 20 + BUTTON_WIDTH and button_top <= y <= button_bottom:
+            if (
+                20 <= x <= 20 + PLAY_PAUSE_BUTTON_WIDTH
+                and button_top <= y <= button_bottom
+            ):
                 self.playing = not self.playing
             # Check if the click is within the timeline area
             elif (
@@ -53,6 +60,30 @@ class BasketballVideoGUI:
             ):
                 clicked_frame = int(((x - 20) / TIMELINE_LENGTH) * self.total_frames)
                 self.cap.set(cv2.CAP_PROP_POS_FRAMES, clicked_frame)
+
+    def draw_add_keyframe_button(self, frame):
+        button_color = (255, 255, 255)
+        button_text_color = (0, 0, 0)
+        button_top = (
+            self.window_height - BUTTONS_BOTTOM_OFFSET - PLAY_PAUSE_BUTTON_HEIGHT
+        )
+        button_bottom = self.window_height - BUTTONS_BOTTOM_OFFSET
+        top_left = (KEYFRAME_BUTTON_LEFT, button_top)
+        bottom_right = (
+            KEYFRAME_BUTTON_LEFT + KEYFRAME_BUTTON_WIDTH,
+            button_bottom,
+        )
+
+        cv2.rectangle(frame, top_left, bottom_right, button_color, -1)
+        cv2.putText(
+            frame,
+            "Keyframe",
+            (KEYFRAME_BUTTON_LEFT + 5, button_top + 30),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            button_text_color,
+            2,
+        )
 
     def draw_play_pause_button(self, frame):
         video_height = frame.shape[0]
@@ -64,8 +95,11 @@ class BasketballVideoGUI:
             button_text = "Play"
 
         # Calculate top-left position based on the window size
-        top_left = (20, video_height - BUTTON_BOTTOM_OFFSET - BUTTON_HEIGHT)
-        bottom_right = (top_left[0] + BUTTON_WIDTH, top_left[1] + BUTTON_HEIGHT)
+        top_left = (20, video_height - BUTTONS_BOTTOM_OFFSET - PLAY_PAUSE_BUTTON_HEIGHT)
+        bottom_right = (
+            top_left[0] + PLAY_PAUSE_BUTTON_WIDTH,
+            top_left[1] + PLAY_PAUSE_BUTTON_HEIGHT,
+        )
 
         cv2.rectangle(frame, top_left, bottom_right, button_color, -1)
         cv2.putText(
@@ -200,6 +234,7 @@ class BasketballVideoGUI:
                     self.draw_line_at_x(frame, x_coord)
 
             self.draw_play_pause_button(frame)
+            self.draw_add_keyframe_button(frame)
             self.draw_timeline(frame)
 
             cv2.imshow("Basketball Video GUI", frame)
