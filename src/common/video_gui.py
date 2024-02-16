@@ -5,6 +5,7 @@ PLAY_PAUSE_BUTTON_WIDTH = 50
 PLAY_PAUSE_BUTTON_HEIGHT = 50
 KEYFRAME_BUTTON_LEFT = 80
 KEYFRAME_BUTTON_WIDTH = 100
+DELETE_BUTTON_WIDTH = 100
 TIMELINE_LENGTH = 600
 TIMELINE_HEIGHT = 20
 
@@ -20,7 +21,7 @@ class BasketballVideoGUI:
         self.playing = True
         self.cap = cv2.VideoCapture(video_file)
         self.keyframe_mode = False
-
+        self.delete_mode = False
         if not self.cap.isOpened():
             raise ValueError("Video file could not be opened")
 
@@ -39,25 +40,52 @@ class BasketballVideoGUI:
         cv2.setMouseCallback("Basketball Video GUI", self.mouse_callback)
 
     def mouse_callback(self, event, x, y, flags, param):
-        # Calculate the Y coordinates for the button and timeline
-        button_top = (
-            self.window_height - BUTTONS_BOTTOM_OFFSET - PLAY_PAUSE_BUTTON_HEIGHT
-        )
-        button_bottom = self.window_height - BUTTONS_BOTTOM_OFFSET
-        timeline_top = self.window_height - TIMELINE_BOTTOM_OFFSET - TIMELINE_HEIGHT
-        timeline_bottom = self.window_height - TIMELINE_BOTTOM_OFFSET
-
         if event == cv2.EVENT_LBUTTONDOWN:
+            # Calculate the Y coordinates for the button and timeline
+            button_top = (
+                self.window_height - BUTTONS_BOTTOM_OFFSET - PLAY_PAUSE_BUTTON_HEIGHT
+            )
+            button_bottom = self.window_height - BUTTONS_BOTTOM_OFFSET
+            timeline_top = self.window_height - TIMELINE_BOTTOM_OFFSET - TIMELINE_HEIGHT
+            timeline_bottom = self.window_height - TIMELINE_BOTTOM_OFFSET
             print(f"Clicked at x={x}, y={y}")
-            # Check if the click is within the play/pause button area
+            print(f"Button top: {button_top}, Timeline top: {timeline_top}")
+            delete_button_left = KEYFRAME_BUTTON_LEFT + KEYFRAME_BUTTON_WIDTH + 20
             if (
+                delete_button_left <= x <= delete_button_left + DELETE_BUTTON_WIDTH
+                and button_top <= y <= button_bottom
+            ):
+                self.delete_mode = not self.delete_mode
+                self.keyframe_mode = False
+
+            # Handle keyframe deletion
+            elif (
+                self.delete_mode
+                and 20 <= x <= 20 + TIMELINE_LENGTH
+                and timeline_top <= y <= timeline_bottom
+            ):
+                print("Deleting keyframe")
+                # Find and delete the nearest keyframe to the click position
+                clicked_frame = int(((x - 20) / TIMELINE_LENGTH) * self.total_frames)
+                print(f"Clicked on frame {clicked_frame}")
+                timestamp_to_delete = min(
+                    self.x_coordinates.keys(),
+                    key=lambda k: abs(self.x_coordinates[k] - clicked_frame),
+                )
+                del self.x_coordinates[timestamp_to_delete]
+                self.delete_mode = False
+
+            # Check if the click is within the play/pause button area
+            elif (
                 20 <= x <= 20 + PLAY_PAUSE_BUTTON_WIDTH
                 and button_top <= y <= button_bottom
             ):
                 self.playing = not self.playing
             # Check if the click is within the timeline area
             elif (
-                20 <= x <= 20 + TIMELINE_LENGTH and timeline_top <= y <= timeline_bottom
+                20 <= x <= 20 + TIMELINE_LENGTH
+                and timeline_top <= y <= timeline_bottom
+                and not self.delete_mode
             ):
                 clicked_frame = int(((x - 20) / TIMELINE_LENGTH) * self.total_frames)
                 self.cap.set(cv2.CAP_PROP_POS_FRAMES, clicked_frame)
@@ -69,6 +97,7 @@ class BasketballVideoGUI:
                 and button_top <= y <= button_bottom
             ):
                 self.keyframe_mode = not self.keyframe_mode
+                self.delete_mode = False
                 # Check if keyframe mode is active and click is on the video area
             elif self.keyframe_mode and y < button_top and y < timeline_top:
                 # Get current timestamp
@@ -82,6 +111,7 @@ class BasketballVideoGUI:
 
                 # Reset keyframe mode
                 self.keyframe_mode = False
+            print(f"Keyframes: {self.x_coordinates}")
 
     def draw_add_keyframe_button(self, frame):
         # Change button color based on self.keyframe_mode
@@ -132,6 +162,29 @@ class BasketballVideoGUI:
             cv2.FONT_HERSHEY_SIMPLEX,
             0.5,
             button_text_color,
+            2,
+        )
+
+    def draw_delete_keyframe_button(self, frame):
+        # Choose position and size for the delete button
+        button_color = (0, 0, 255) if self.delete_mode else (255, 255, 255)
+        delete_button_left = KEYFRAME_BUTTON_LEFT + KEYFRAME_BUTTON_WIDTH + 20
+        button_top = (
+            self.window_height - BUTTONS_BOTTOM_OFFSET - PLAY_PAUSE_BUTTON_HEIGHT
+        )
+        button_bottom = self.window_height - BUTTONS_BOTTOM_OFFSET
+
+        top_left = (delete_button_left, button_top)
+        bottom_right = (delete_button_left + DELETE_BUTTON_WIDTH, button_bottom)
+
+        cv2.rectangle(frame, top_left, bottom_right, button_color, -1)
+        cv2.putText(
+            frame,
+            "Delete",
+            (delete_button_left + 5, button_top + 30),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (0, 0, 0),
             2,
         )
 
@@ -259,6 +312,7 @@ class BasketballVideoGUI:
             self.draw_play_pause_button(frame)
             self.draw_add_keyframe_button(frame)
             self.draw_timeline(frame)
+            self.draw_delete_keyframe_button(frame)
 
             cv2.imshow("Basketball Video GUI", frame)
 
