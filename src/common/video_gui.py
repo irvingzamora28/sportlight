@@ -321,6 +321,10 @@ class BasketballVideoGUI:
                 break
             elif key == ord(" "):
                 self.playing = not self.playing
+            elif key == ord("k") or key == ord("s"):
+                self.keyframe_mode = not self.keyframe_mode
+            elif key == ord("d"):
+                self.delete_mode = not self.delete_mode
 
             if self.playing:
                 if self.cap.get(cv2.CAP_PROP_POS_FRAMES) + 1 >= self.total_frames:
