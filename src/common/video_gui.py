@@ -142,8 +142,9 @@ class BasketballVideoGUI:
             print(f"Keyframes: {self.x_coordinates}")
 
     def save_keyframes_to_json(self):
+        ordered = dict(sorted(self.x_coordinates.items()))
         with open(self.output_json_path, "w") as file:
-            json.dump(self.x_coordinates, file)
+            json.dump(ordered, file)
         print("Keyframes saved to JSON file.")
 
     def draw_add_keyframe_button(self, frame):
