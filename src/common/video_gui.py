@@ -1,4 +1,5 @@
 import cv2
+import json
 
 # Constants for layout
 PLAY_PAUSE_BUTTON_WIDTH = 50
@@ -6,6 +7,7 @@ PLAY_PAUSE_BUTTON_HEIGHT = 50
 KEYFRAME_BUTTON_LEFT = 80
 KEYFRAME_BUTTON_WIDTH = 100
 DELETE_BUTTON_WIDTH = 100
+SAVE_BUTTON_WIDTH = 100
 TIMELINE_LENGTH = 600
 TIMELINE_HEIGHT = 20
 
@@ -15,9 +17,10 @@ TIMELINE_BOTTOM_OFFSET = 10
 
 
 class BasketballVideoGUI:
-    def __init__(self, video_file, x_coordinates):
+    def __init__(self, video_file, x_coordinates, output_json_path):
         self.video_file = video_file
         self.x_coordinates = x_coordinates
+        self.output_json_path = output_json_path
         self.playing = True
         self.cap = cv2.VideoCapture(video_file)
         self.keyframe_mode = False
@@ -51,6 +54,8 @@ class BasketballVideoGUI:
             print(f"Clicked at x={x}, y={y}")
             print(f"Button top: {button_top}, Timeline top: {timeline_top}")
             delete_button_left = KEYFRAME_BUTTON_LEFT + KEYFRAME_BUTTON_WIDTH + 20
+            save_button_left = KEYFRAME_BUTTON_LEFT + 2 * KEYFRAME_BUTTON_WIDTH + 40
+
             if (
                 delete_button_left <= x <= delete_button_left + DELETE_BUTTON_WIDTH
                 and button_top <= y <= button_bottom
@@ -89,6 +94,11 @@ class BasketballVideoGUI:
             ):
                 clicked_frame = int(((x - 20) / TIMELINE_LENGTH) * self.total_frames)
                 self.cap.set(cv2.CAP_PROP_POS_FRAMES, clicked_frame)
+            elif (
+                save_button_left <= x <= save_button_left + SAVE_BUTTON_WIDTH
+                and button_top <= y <= button_bottom
+            ):
+                self.save_keyframes_to_json()
             # Toggle keyframe mode when keyframe button is clicked
             if (
                 KEYFRAME_BUTTON_LEFT
@@ -112,6 +122,11 @@ class BasketballVideoGUI:
                 # Reset keyframe mode
                 self.keyframe_mode = False
             print(f"Keyframes: {self.x_coordinates}")
+
+    def save_keyframes_to_json(self):
+        with open(self.output_json_path, "w") as file:
+            json.dump(self.x_coordinates, file)
+        print("Keyframes saved to JSON file.")
 
     def draw_add_keyframe_button(self, frame):
         # Change button color based on self.keyframe_mode
@@ -182,6 +197,28 @@ class BasketballVideoGUI:
             frame,
             "Delete",
             (delete_button_left + 5, button_top + 30),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (0, 0, 0),
+            2,
+        )
+
+    def draw_save_button(self, frame):
+        # Choose position and size for the save button
+        save_button_left = KEYFRAME_BUTTON_LEFT + 2 * KEYFRAME_BUTTON_WIDTH + 40
+        button_top = (
+            self.window_height - BUTTONS_BOTTOM_OFFSET - PLAY_PAUSE_BUTTON_HEIGHT
+        )
+        button_bottom = self.window_height - BUTTONS_BOTTOM_OFFSET
+
+        top_left = (save_button_left, button_top)
+        bottom_right = (save_button_left + SAVE_BUTTON_WIDTH, button_bottom)
+
+        cv2.rectangle(frame, top_left, bottom_right, (255, 255, 255), -1)
+        cv2.putText(
+            frame,
+            "Save",
+            (save_button_left + 5, button_top + 30),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.5,
             (0, 0, 0),
@@ -313,6 +350,7 @@ class BasketballVideoGUI:
             self.draw_add_keyframe_button(frame)
             self.draw_timeline(frame)
             self.draw_delete_keyframe_button(frame)
+            self.draw_save_button(frame)
 
             cv2.imshow("Basketball Video GUI", frame)
 

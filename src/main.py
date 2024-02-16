@@ -176,7 +176,9 @@ def main(
         cleaned_coordinates = clean_basketball_coordinates(basketball_detections)
         logger.console(cleaned_coordinates)
 
-        gui = BasketballVideoGUI(input_video, cleaned_coordinates)
+        gui = BasketballVideoGUI(
+            input_video, cleaned_coordinates, basketball_detections_filename
+        )
         gui.run()
 
         # handle_nba(
