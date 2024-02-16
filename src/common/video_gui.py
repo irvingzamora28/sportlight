@@ -19,6 +19,7 @@ class BasketballVideoGUI:
         self.x_coordinates = x_coordinates
         self.playing = True
         self.cap = cv2.VideoCapture(video_file)
+        self.keyframe_mode = False
 
         if not self.cap.isOpened():
             raise ValueError("Video file could not be opened")
@@ -60,9 +61,31 @@ class BasketballVideoGUI:
             ):
                 clicked_frame = int(((x - 20) / TIMELINE_LENGTH) * self.total_frames)
                 self.cap.set(cv2.CAP_PROP_POS_FRAMES, clicked_frame)
+            # Toggle keyframe mode when keyframe button is clicked
+            if (
+                KEYFRAME_BUTTON_LEFT
+                <= x
+                <= KEYFRAME_BUTTON_LEFT + KEYFRAME_BUTTON_WIDTH
+                and button_top <= y <= button_bottom
+            ):
+                self.keyframe_mode = not self.keyframe_mode
+                # Check if keyframe mode is active and click is on the video area
+            elif self.keyframe_mode and y < button_top and y < timeline_top:
+                # Get current timestamp
+                timestamp = int(self.cap.get(cv2.CAP_PROP_POS_MSEC))
+
+                # Save the timestamp and X coordinate
+                self.x_coordinates[timestamp] = x
+
+                # Print or handle the saved keyframe
+                print(f"Keyframe added at timestamp: {timestamp}ms, X coordinate: {x}")
+
+                # Reset keyframe mode
+                self.keyframe_mode = False
 
     def draw_add_keyframe_button(self, frame):
-        button_color = (255, 255, 255)
+        # Change button color based on self.keyframe_mode
+        button_color = (0, 255, 0) if self.keyframe_mode else (255, 255, 255)
         button_text_color = (0, 0, 0)
         button_top = (
             self.window_height - BUTTONS_BOTTOM_OFFSET - PLAY_PAUSE_BUTTON_HEIGHT
