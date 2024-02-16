@@ -70,14 +70,28 @@ class BasketballVideoGUI:
                 and timeline_top <= y <= timeline_bottom
             ):
                 print("Deleting keyframe")
-                # Find and delete the nearest keyframe to the click position
-                clicked_frame = int(((x - 20) / TIMELINE_LENGTH) * self.total_frames)
-                print(f"Clicked on frame {clicked_frame}")
-                timestamp_to_delete = min(
-                    self.x_coordinates.keys(),
-                    key=lambda k: abs(self.x_coordinates[k] - clicked_frame),
+                # Calculate the proportional timestamp based on the click position
+                relative_position = (x - 20) / TIMELINE_LENGTH
+                clicked_timestamp = int(
+                    relative_position * (self.total_frames / self.fps * 1000)
                 )
-                del self.x_coordinates[timestamp_to_delete]
+                print(f"Clicked on timestamp {clicked_timestamp}")
+
+                # Find the nearest timestamp in self.x_coordinates
+                if self.x_coordinates:
+                    nearest_timestamp = min(
+                        self.x_coordinates.keys(),
+                        key=lambda k: abs(k - clicked_timestamp),
+                    )
+
+                    # Check if the nearest timestamp is close enough to be considered
+                    if abs(nearest_timestamp - clicked_timestamp) < (
+                        self.total_frames / self.fps * 1000 / TIMELINE_LENGTH
+                    ):
+                        # Delete the nearest timestamp
+                        del self.x_coordinates[nearest_timestamp]
+                        print(f"Deleted keyframe at timestamp: {nearest_timestamp}ms")
+
                 self.delete_mode = False
 
             # Check if the click is within the play/pause button area
