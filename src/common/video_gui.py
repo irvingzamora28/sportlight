@@ -387,6 +387,7 @@ class BasketballVideoGUI:
                 break
             elif key == ord(" "):
                 self.playing = not self.playing
+                self.keyframe_mode = not self.playing
             elif key == ord("k") or key == ord("s"):
                 self.keyframe_mode = not self.keyframe_mode
             elif key == ord("d"):
