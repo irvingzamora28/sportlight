@@ -25,6 +25,7 @@ class BasketballVideoGUI:
         self.cap = cv2.VideoCapture(video_file)
         self.keyframe_mode = False
         self.delete_mode = False
+        self.update_gui = False  # New flag for redrawing the frame
         if not self.cap.isOpened():
             raise ValueError("Video file could not be opened")
 
@@ -92,7 +93,8 @@ class BasketballVideoGUI:
                         del self.x_coordinates[nearest_timestamp]
                         print(f"Deleted keyframe at timestamp: {nearest_timestamp}ms")
 
-                self.delete_mode = False
+                        self.delete_mode = False
+                        self.update_gui = True
 
             # Check if the click is within the play/pause button area
             elif (
@@ -135,6 +137,8 @@ class BasketballVideoGUI:
 
                 # Reset keyframe mode
                 self.keyframe_mode = False
+                self.update_gui = True
+
             print(f"Keyframes: {self.x_coordinates}")
 
     def save_keyframes_to_json(self):
@@ -299,6 +303,15 @@ class BasketballVideoGUI:
         height = frame.shape[0]
         cv2.line(frame, (x_coord, 0), (x_coord, height), (255, 0, 0), 2)
 
+    def get_current_frame(self):
+        ret, frame = self.cap.read()
+        if not ret:
+            raise ValueError("Could not fetch the current frame")
+        self.cap.set(
+            cv2.CAP_PROP_POS_FRAMES, self.cap.get(cv2.CAP_PROP_POS_FRAMES) - 1
+        )  # Reset to the current frame
+        return frame
+
     def run(self):
         # Get video dimensions
         ret, frame = self.cap.read()
@@ -312,7 +325,7 @@ class BasketballVideoGUI:
         last_known_x_coord = None
 
         while self.cap.isOpened():
-            if self.playing:
+            if self.playing or self.update_gui:
                 ret, frame = self.cap.read()
                 if not ret:
                     break
@@ -365,6 +378,7 @@ class BasketballVideoGUI:
             self.draw_timeline(frame)
             self.draw_delete_keyframe_button(frame)
             self.draw_save_button(frame)
+            self.update_gui = False
 
             cv2.imshow("Basketball Video GUI", frame)
 
