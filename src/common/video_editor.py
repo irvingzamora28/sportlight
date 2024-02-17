@@ -178,6 +178,12 @@ def horizontal_pan_with_smooth_motion(
         # Convert t to milliseconds
         t_milliseconds = t * 1000
 
+        # Check if the timestamp is very close to the video duration
+        if clip.duration - t < 0.1:  # 0.1 is an arbitrary small threshold
+            logger.console(f"Time {t} exceeds clip duration, returning last frame")
+            # If close to the end, return the last frame
+            return clip.get_frame(clip.duration)
+
         # Interpolate to find the ball's position at time t
         target_x = np.interp(t_milliseconds, times, positions)
 
