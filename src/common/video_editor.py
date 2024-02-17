@@ -85,7 +85,10 @@ class VideoEditor:
                     video_clips.append(video_clip)
 
             # Prepare and add image clips with outro audio
-            if stats_home_team_image_path and stats_away_team_image_path:
+            if (
+                "stats_home_team_image_path" in locals()
+                and "stats_away_team_image_path" in locals()
+            ):
                 # Create an ImageClip with the stats image
                 stats_home_team_image_clip = ImageClip(
                     stats_home_team_image_path
@@ -136,7 +139,7 @@ class VideoEditor:
         panned_clip = horizontal_pan_with_smooth_motion(clip, ball_positions, new_width)
 
         # Export the video with the panning effect
-        panned_clip.write_videofile(output_path, codec="libx264", fps=24)
+        panned_clip.write_videofile(output_path, codec="libx264", fps=30)
 
 
 def horizontal_pan(clip, start_x, end_x, new_width):
