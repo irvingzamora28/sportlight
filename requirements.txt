@@ -1,3 +1,4 @@
+regex
 requests
 beautifulsoup4
 python-dotenv
@@ -10,4 +11,10 @@ pandas
 matplotlib
 seaborn
 scipy>=1.4.1
-torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision
+torchaudio
+PyQt5
+pyqt5-tools
+opencv-python
+ffmpeg
