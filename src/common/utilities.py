@@ -21,7 +21,7 @@ from selenium.webdriver.common.by import By
 import json
 from parser.json_parser import JSONParser
 
-
+BUTTON_COOKIE_BANNER = "onetrust-accept-btn-handler"
 def test_twitter():
     # Set up Chrome options
     options = Options()
@@ -208,11 +208,11 @@ def fetch_video_urls_from_table(
         try:
             WebDriverWait(driver, wait_time).until(
                 EC.presence_of_element_located(
-                    (By.CLASS_NAME, "onetrust-close-btn-handler")
+                    (By.ID, BUTTON_COOKIE_BANNER)
                 )
             )
             close_cookie_banner_button = driver.find_element(
-                By.CLASS_NAME, "onetrust-close-btn-handler"
+                By.ID, BUTTON_COOKIE_BANNER
             )
             close_cookie_banner_button.click()
         except TimeoutException:
@@ -308,11 +308,11 @@ def fetch_play_videos_from_play_by_play_table(
         try:
             WebDriverWait(driver, wait_time).until(
                 EC.presence_of_element_located(
-                    (By.CLASS_NAME, "onetrust-close-btn-handler")
+                    (By.ID, BUTTON_COOKIE_BANNER)
                 )
             )
             close_cookie_banner_button = driver.find_element(
-                By.CLASS_NAME, "onetrust-close-btn-handler"
+                By.ID, BUTTON_COOKIE_BANNER
             )
             close_cookie_banner_button.click()
         except TimeoutException:
@@ -531,3 +531,7 @@ def json_stats_to_html_image(stats_json, output_image_path):
 
     # Convert HTML to Image
     imgkit.from_string(html_content, output_image_path)
+
+def write_to_file(data, file_path):
+    with open(file_path, "w") as file:
+        json.dump(data, file, indent=4)
