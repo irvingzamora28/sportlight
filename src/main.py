@@ -15,6 +15,7 @@ from common.video_downloader import VideoDownloader
 from common.utilities import get_files_in_directory
 from common.utilities import test_twitter
 from common.utilities import clean_basketball_coordinates
+from common.utilities import write_to_file
 from common.video_editor import VideoEditor
 from common.utilities import json_stats_to_html_image
 from common.image_processor import ImageProcessor
@@ -48,6 +49,7 @@ def process_game_data(
     max_games=None,
 ):
     for idx, game_card in enumerate(game_data):
+        write_to_file(game_card, f"{OUTPUT_NBA_DIR}/game_card_{idx}.json")
         if max_games is not None and idx >= max_games:
             break
         actions_path = ["gameCard", "actions"]
@@ -97,35 +99,35 @@ def process_game_data(
             )
 
         all_players_lastnames = PlayerDataUtils.get_players_lastnames(all_key_players)
-
+        logger.console(f"All players lastnames: {all_players_lastnames}")
         play_by_play_url = game_data_processor.get_play_by_play_url(actions)
         logger.console(
             f"Looking for special_keywords in play by play: {special_keywords}"
         )
-        play_by_play_data = fetch_game_play_by_play_data(
-            play_by_play_url,
-            special_keywords,
-            all_players_lastnames,
-            words_to_exclude,
-            keywords,
-        )
+        # play_by_play_data = fetch_game_play_by_play_data(
+        #     play_by_play_url,
+        #     special_keywords,
+        #     all_players_lastnames,
+        #     words_to_exclude,
+        #     keywords,
+        # )
 
-        for event_data in play_by_play_data:
-            for event_data_video_url in event_data.get("video_urls", []):
-                logger.console(
-                    f"Starting download play-by-play event video url: {event_data_video_url}"
-                )
-                VideoDownloader.download_video(
-                    event_data_video_url,
-                    f"{OUTPUT_NBA_VIDEOS_DIR}/{date}/{game_slug}",
-                    f"{event_data['pos']}_{event_data['clock']}_{event_data['title']}.mp4",
-                )
+        # for event_data in play_by_play_data:
+        #     for event_data_video_url in event_data.get("video_urls", []):
+        #         logger.console(
+        #             f"Starting download play-by-play event video url: {event_data_video_url}"
+        #         )
+        #         VideoDownloader.download_video(
+        #             event_data_video_url,
+        #             f"{OUTPUT_NBA_VIDEOS_DIR}/{date}/{game_slug}",
+        #             f"{event_data['pos']}_{event_data['clock']}_{event_data['title']}.mp4",
+        #         )
 
         directory = f"{OUTPUT_NBA_VIDEOS_DIR}/{date}/{game_slug}"
         video_paths = get_files_in_directory(directory)
-        VideoEditor.create_highlight_video(
-            video_paths, f"{OUTPUT_NBA_VIDEOS_DIR}/{date}/{game_slug}", box_score_data
-        )
+        # VideoEditor.create_highlight_video(
+        #     video_paths, f"{OUTPUT_NBA_VIDEOS_DIR}/{date}/{game_slug}", box_score_data
+        # )
 
 
 def handle_nba(
@@ -158,38 +160,38 @@ def main(
         # imageprocessor = ImageProcessor()
 
         # READ BASKETBALL_DETECTIONS
-        basketball_detections_filename = (
-            os.path.basename(input_video).split(".")[0] + "_detections.json"
-        )
-        basketball_detections = {}
-
-        with open(basketball_detections_filename) as f:
-            basketball_detections_data = json.load(f)
-            basketball_detections = {
-                int(k): v for k, v in basketball_detections_data.items()
-            }
-        logger.console(
-            f"Loaded {len(basketball_detections)} basketball frame detections from {basketball_detections_filename}"
-        )
-        logger.console(basketball_detections)
-
-        cleaned_coordinates = clean_basketball_coordinates(basketball_detections)
-        logger.console(cleaned_coordinates)
-
-        gui = BasketballVideoGUI(
-            input_video, cleaned_coordinates, basketball_detections_filename
-        )
-        gui.run()
-
-        # handle_nba(
-        #     league,
-        #     date,
-        #     special_keywords,
-        #     players,
-        #     words_to_exclude,
-        #     keywords,
-        #     max_games,
+        # basketball_detections_filename = (
+        #     os.path.basename(input_video).split(".")[0] + "_detections.json"
         # )
+        # basketball_detections = {}
+
+        # with open(basketball_detections_filename) as f:
+        #     basketball_detections_data = json.load(f)
+        #     basketball_detections = {
+        #         int(k): v for k, v in basketball_detections_data.items()
+        #     }
+        # logger.console(
+        #     f"Loaded {len(basketball_detections)} basketball frame detections from {basketball_detections_filename}"
+        # )
+        # logger.console(basketball_detections)
+
+        # cleaned_coordinates = clean_basketball_coordinates(basketball_detections)
+        # logger.console(cleaned_coordinates)
+
+        # gui = BasketballVideoGUI(
+        #     input_video, cleaned_coordinates, basketball_detections_filename
+        # )
+        # gui.run()
+
+        handle_nba(
+            league,
+            date,
+            special_keywords,
+            players,
+            words_to_exclude,
+            keywords,
+            max_games,
+        )
 
         # DETECT BASKETBALL
         # basketball_detections = imageprocessor.detect_video_basketball(input_video)
