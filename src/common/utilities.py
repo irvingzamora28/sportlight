@@ -22,6 +22,8 @@ import json
 from parser.json_parser import JSONParser
 
 BUTTON_COOKIE_BANNER = "onetrust-accept-btn-handler"
+
+
 def test_twitter():
     # Set up Chrome options
     options = Options()
@@ -37,6 +39,9 @@ def test_twitter():
     }
     options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
     options.add_experimental_option("perfLoggingPrefs", perf_logging_prefs)
+
+    # Enable headless mode
+    options.add_argument("--headless")
 
     # Initialize the driver with the appropriate options to access network logs
     driver = webdriver.Chrome(options=options)
@@ -207,9 +212,7 @@ def fetch_video_urls_from_table(
         # Handling the cookie banner
         try:
             WebDriverWait(driver, wait_time).until(
-                EC.presence_of_element_located(
-                    (By.ID, BUTTON_COOKIE_BANNER)
-                )
+                EC.presence_of_element_located((By.ID, BUTTON_COOKIE_BANNER))
             )
             close_cookie_banner_button = driver.find_element(
                 By.ID, BUTTON_COOKIE_BANNER
@@ -307,9 +310,7 @@ def fetch_play_videos_from_play_by_play_table(
         # Handling the cookie banner
         try:
             WebDriverWait(driver, wait_time).until(
-                EC.presence_of_element_located(
-                    (By.ID, BUTTON_COOKIE_BANNER)
-                )
+                EC.presence_of_element_located((By.ID, BUTTON_COOKIE_BANNER))
             )
             close_cookie_banner_button = driver.find_element(
                 By.ID, BUTTON_COOKIE_BANNER
@@ -531,6 +532,7 @@ def json_stats_to_html_image(stats_json, output_image_path):
 
     # Convert HTML to Image
     imgkit.from_string(html_content, output_image_path)
+
 
 def write_to_file(data, file_path):
     with open(file_path, "w") as file:
