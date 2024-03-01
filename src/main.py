@@ -22,6 +22,9 @@ from common.image_processor import ImageProcessor
 from common.logger import logger
 from common.video_player import VideoPlayer
 from common.video_gui import BasketballVideoGUI
+from rembg import remove
+from PIL import Image
+import io
 
 OUTPUT_DIR = "output"
 NBA_DIR = "nba"
@@ -183,15 +186,32 @@ def main(
         # )
         # gui.run()
 
-        handle_nba(
-            league,
-            date,
-            special_keywords,
-            players,
-            words_to_exclude,
-            keywords,
-            max_games,
-        )
+        # handle_nba(
+        #     league,
+        #     date,
+        #     special_keywords,
+        #     players,
+        #     words_to_exclude,
+        #     keywords,
+        #     max_games,
+        # )
+        
+        # Load your image
+        input_path = 'resources/image/players/doncic/Mavs-Talked-With-Luka-Doncic-About-Decreasing-Preferred-Playing-Weight.webp'
+        output_path = 'resources/image/players/doncic/transparent_Mavs-Talked-With-Luka-Doncic.png'
+
+        with open(input_path, 'rb') as input_file:
+            input_bytes = input_file.read()
+
+        # Remove the background
+        output_bytes = remove(input_bytes)
+
+        # Save the output image
+        with open(output_path, 'wb') as output_file:
+            output_file.write(output_bytes)
+
+        print(f"Background removed and saved to {output_path}")
+
 
         # DETECT BASKETBALL
         # basketball_detections = imageprocessor.detect_video_basketball(input_video)

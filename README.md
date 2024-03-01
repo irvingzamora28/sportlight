@@ -27,6 +27,7 @@ Sportlight is an innovative project aimed at generating highlight videos from va
     -   scipy>=1.4.1
     -   torch, torchvision, torchaudio (for CPU version)
     -   PyQt5 for GUI development
+    - rembg for background removal in images
 -   MongoDB database setup for data storage.
 -   .env file for API, base URLs, and database connection strings.
 -   FFmpeg for video processing (See FFmpeg installation guide below).
