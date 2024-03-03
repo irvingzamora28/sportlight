@@ -50,6 +50,7 @@ def process_game_data(
     words_to_exclude,
     keywords,
     max_games=None,
+    team=None,
 ):
     for idx, game_card in enumerate(game_data):
         write_to_file(game_card, f"{OUTPUT_NBA_DIR}/game_card_{idx}.json")
@@ -79,6 +80,10 @@ def process_game_data(
             ]
         )
         logger.console(f"Game slug: {game_slug}")
+        if team is not None:
+            if game_slug.find(team) == -1 and game_id.find(team) == -1:
+                continue
+                
         box_score_url = game_data_processor.get_box_score_url(actions)
         box_score_data = fetch_box_score_data(box_score_url)
         filename = f"{OUTPUT_NBA_DIR}/raw/nba_box_score_{game_slug}_{date}.json"
@@ -134,7 +139,7 @@ def process_game_data(
 
 
 def handle_nba(
-    league, date, special_keywords, players, words_to_exclude, keywords, max_games
+    league, date, special_keywords, players, words_to_exclude, keywords, max_games, team
 ):
     try:
         init_directories(date)
@@ -148,6 +153,7 @@ def handle_nba(
                 words_to_exclude,
                 keywords,
                 max_games,
+                team
             )
         else:
             logger.console("No game data found")
@@ -156,7 +162,7 @@ def handle_nba(
 
 
 def main(
-    league, date, special_keywords, players, words_to_exclude, keywords, max_games
+    league, date, special_keywords, players, words_to_exclude, keywords, max_games, team
 ):
     if league.upper() == "NBA":
         input_video = "/home/irving/webdev/irving/sportlight/output/nba/videos/175_06:28_James 2' Running Dunk .mp4"
@@ -194,6 +200,7 @@ def main(
             words_to_exclude,
             keywords,
             max_games,
+            team
         )
         
         # DETECT BASKETBALL
@@ -260,6 +267,13 @@ def parse_arguments():
         default=None,
         help="Specify the maximum number of games to process",
     )
+    
+    parser.add_argument(
+        "--team",
+        type=str,
+        default=None,
+        help="Specify the team slug or the game id to process",
+    )
 
     return parser.parse_args()
 
@@ -274,4 +288,5 @@ if __name__ == "__main__":
         args.words_to_exclude,
         args.keywords,
         args.max_games,
+        args.team
     )
