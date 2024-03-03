@@ -107,30 +107,30 @@ def process_game_data(
         logger.console(
             f"Looking for special_keywords in play by play: {special_keywords}"
         )
-        # play_by_play_data = fetch_game_play_by_play_data(
-        #     play_by_play_url,
-        #     special_keywords,
-        #     all_players_lastnames,
-        #     words_to_exclude,
-        #     keywords,
-        # )
+        play_by_play_data = fetch_game_play_by_play_data(
+            play_by_play_url,
+            special_keywords,
+            all_players_lastnames,
+            words_to_exclude,
+            keywords,
+        )
 
-        # for event_data in play_by_play_data:
-        #     for event_data_video_url in event_data.get("video_urls", []):
-        #         logger.console(
-        #             f"Starting download play-by-play event video url: {event_data_video_url}"
-        #         )
-        #         VideoDownloader.download_video(
-        #             event_data_video_url,
-        #             f"{OUTPUT_NBA_VIDEOS_DIR}/{date}/{game_slug}",
-        #             f"{event_data['pos']}_{event_data['clock']}_{event_data['title']}.mp4",
-        #         )
+        for event_data in play_by_play_data:
+            for event_data_video_url in event_data.get("video_urls", []):
+                logger.console(
+                    f"Starting download play-by-play event video url: {event_data_video_url}"
+                )
+                VideoDownloader.download_video(
+                    event_data_video_url,
+                    f"{OUTPUT_NBA_VIDEOS_DIR}/{date}/{game_slug}",
+                    f"{event_data['pos']}_{event_data['clock']}_{event_data['title']}.mp4",
+                )
 
         directory = f"{OUTPUT_NBA_VIDEOS_DIR}/{date}/{game_slug}"
         video_paths = get_files_in_directory(directory)
-        # VideoEditor.create_highlight_video(
-        #     video_paths, f"{OUTPUT_NBA_VIDEOS_DIR}/{date}/{game_slug}", box_score_data
-        # )
+        VideoEditor.create_highlight_video(
+            video_paths, f"{OUTPUT_NBA_VIDEOS_DIR}/{date}/{game_slug}", box_score_data
+        )
 
 
 def handle_nba(
@@ -186,33 +186,16 @@ def main(
         # )
         # gui.run()
 
-        # handle_nba(
-        #     league,
-        #     date,
-        #     special_keywords,
-        #     players,
-        #     words_to_exclude,
-        #     keywords,
-        #     max_games,
-        # )
+        handle_nba(
+            league,
+            date,
+            special_keywords,
+            players,
+            words_to_exclude,
+            keywords,
+            max_games,
+        )
         
-        # Load your image
-        input_path = 'resources/image/players/doncic/Mavs-Talked-With-Luka-Doncic-About-Decreasing-Preferred-Playing-Weight.webp'
-        output_path = 'resources/image/players/doncic/transparent_Mavs-Talked-With-Luka-Doncic.png'
-
-        with open(input_path, 'rb') as input_file:
-            input_bytes = input_file.read()
-
-        # Remove the background
-        output_bytes = remove(input_bytes)
-
-        # Save the output image
-        with open(output_path, 'wb') as output_file:
-            output_file.write(output_bytes)
-
-        print(f"Background removed and saved to {output_path}")
-
-
         # DETECT BASKETBALL
         # basketball_detections = imageprocessor.detect_video_basketball(input_video)
         # basketball_detections = imageprocessor.detect_video_basketball_pytorch(
