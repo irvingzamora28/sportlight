@@ -192,16 +192,37 @@ def main(
         # )
         # gui.run()
 
-        handle_nba(
-            league,
-            date,
-            special_keywords,
-            players,
-            words_to_exclude,
-            keywords,
-            max_games,
-            team
-        )
+        # handle_nba(
+        #     league,
+        #     date,
+        #     special_keywords,
+        #     players,
+        #     words_to_exclude,
+        #     keywords,
+        #     max_games,
+        # )
+        
+
+        input_dir = "resources/image/players/phi/maxey/"
+        output_dir = "resources/image/players/phi/maxey/"
+
+        for filename in os.listdir(input_dir):
+            if filename.endswith(".png") or filename.endswith(".jpg") or filename.endswith(".jpeg"):
+                input_path = os.path.join(input_dir, filename)
+                output_path = os.path.join(output_dir, "transparent_" + filename)
+
+                with open(input_path, "rb") as input_file:
+                    input_bytes = input_file.read()
+
+                # Remove the background
+                output_bytes = remove(input_bytes)
+
+                # Save the output image
+                with open(output_path, "wb") as output_file:
+                    output_file.write(output_bytes)
+
+                print(f"Background removed from {input_path} and saved to {output_path}")
+
         
         # DETECT BASKETBALL
         # basketball_detections = imageprocessor.detect_video_basketball(input_video)
