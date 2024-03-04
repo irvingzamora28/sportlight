@@ -7,7 +7,7 @@ class ImageUtilities:
         """
         The constructor for ImageUtilities class.
         """
-        
+
     def is_image_file(self, filename):
         return filename.lower().endswith((".png", ".jpg", ".jpeg"))
 
@@ -18,7 +18,7 @@ class ImageUtilities:
         # Remove the background
         output_bytes = remove(input_bytes)
 
-        # Save the output image
+        # Save the output image as png
         with open(output_path, "wb") as output_file:
             output_file.write(output_bytes)
 
@@ -30,8 +30,9 @@ class ImageUtilities:
             for filename in os.listdir(input_path):
                 if self.is_image_file(filename):
                     input_file_path = os.path.join(input_path, filename)
-                    output_file_path = os.path.join(output_path, "transparent_" + filename)
+                    output_file_path = os.path.join(
+                        output_path, "transparent_" + filename + ".png"
+                    )
                     self.process_single_image(input_file_path, output_file_path)
         else:
-            self.process_single_image(input_path, output_path)
-
+            self.process_single_image(input_path, output_path + ".png")

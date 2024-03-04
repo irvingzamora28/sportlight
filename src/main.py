@@ -23,7 +23,8 @@ from common.image_processor import ImageProcessor
 from common.logger import logger
 from common.video_player import VideoPlayer
 from common.video_gui import BasketballVideoGUI
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
+
 import io
 
 OUTPUT_DIR = "output"
@@ -205,9 +206,10 @@ def main(
         
         imageUtilities = ImageUtilities()
         
-        input_dir = "resources/image/players/okc/holmgren/"
-        output_dir = "resources/image/players/okc/holmgren/"
+        input_dir = "resources/image/nba/min/"
+        output_dir = "resources/image/nba/min/"
         imageUtilities.make_image_transparent(input_dir, output_dir)
+
 
         
         # DETECT BASKETBALL
