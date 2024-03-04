@@ -18,11 +18,11 @@ from common.utilities import clean_basketball_coordinates
 from common.utilities import write_to_file
 from common.video_editor import VideoEditor
 from common.utilities import json_stats_to_html_image
+from common.image_utilities import ImageUtilities
 from common.image_processor import ImageProcessor
 from common.logger import logger
 from common.video_player import VideoPlayer
 from common.video_gui import BasketballVideoGUI
-from rembg import remove
 from PIL import Image
 import io
 
@@ -203,26 +203,11 @@ def main(
         #     team
         # )
         
-
-        input_dir = "resources/image/players/min/towns/"
-        output_dir = "resources/image/players/min/towns/"
-
-        for filename in os.listdir(input_dir):
-            if filename.endswith(".png") or filename.endswith(".jpg") or filename.endswith(".jpeg"):
-                input_path = os.path.join(input_dir, filename)
-                output_path = os.path.join(output_dir, "transparent_" + filename)
-
-                with open(input_path, "rb") as input_file:
-                    input_bytes = input_file.read()
-
-                # Remove the background
-                output_bytes = remove(input_bytes)
-
-                # Save the output image
-                with open(output_path, "wb") as output_file:
-                    output_file.write(output_bytes)
-
-                print(f"Background removed from {input_path} and saved to {output_path}")
+        imageUtilities = ImageUtilities()
+        
+        input_dir = "resources/image/players/okc/holmgren/"
+        output_dir = "resources/image/players/okc/holmgren/"
+        imageUtilities.make_image_transparent(input_dir, output_dir)
 
         
         # DETECT BASKETBALL
