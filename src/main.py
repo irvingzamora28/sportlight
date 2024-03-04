@@ -328,33 +328,80 @@ def main(
         team1_name = "LAC"
         team2_name = "MIN"
         team_name_font = ImageFont.truetype(font_path, 300)
-        team1_name_position = ((thumbnail_width - text_width) // 4 - 200, thumbnail_height - 400)
-        team2_name_position = (3 * (thumbnail_width - text_width) // 4 + 50, thumbnail_height - 400)
-        # Set shadow details
-        shadow_offset = (12, 12)
-        shadow_color = "black"
+        # Calculate the bounding box and thus the width of the team names
+        team1_name_bbox = draw.textbbox((0, 0), team1_name, font=team_name_font)
+        team2_name_bbox = draw.textbbox((0, 0), team2_name, font=team_name_font)
 
-        # Draw the team names with shadows
-        for team_name, team_name_position in [(team1_name, team1_name_position), (team2_name, team2_name_position)]:
-            # Calculate the bounding box for the text and the shadow position
-            bbox = draw.textbbox(team_name_position, team_name, font=team_name_font)
-            text_width = bbox[2] - bbox[0]
-            text_height = bbox[3] - bbox[1]
-            shadow_position = (team_name_position[0] + shadow_offset[0], team_name_position[1] + shadow_offset[1])
+        team1_name_width = team1_name_bbox[2] - team1_name_bbox[0]
+        team2_name_width = team2_name_bbox[2] - team2_name_bbox[0]
+
+        team_name_y_offset = 380
+
+        # Calculate the `y` position for the team names
+        team1_name_y = thumbnail_height - team_name_y_offset
+        team2_name_y = thumbnail_height - team_name_y_offset
+
+        # Calculate new positions for the team names to be centered in their respective halves
+        team1_name_x = (half_width - team1_name_width) // 2
+        team2_name_x = half_width + (half_width - team2_name_width) // 2
+
+        # Now, define the position tuples for each team name
+        team1_name_position = (team1_name_x, team1_name_y)
+        team2_name_position = (team2_name_x, team2_name_y)
+
+        # Draw the team names with shadows, centered
+        for team_name, name_position in [(team1_name, team1_name_position), (team2_name, team2_name_position)]:
+            # Calculate the shadow position for the name
+            shadow_position = (name_position[0] + shadow_offset[0], name_position[1] + shadow_offset[1])
             
             # Draw the shadow first
             draw.text(shadow_position, team_name, fill=shadow_color, font=team_name_font)
             
-            # Then draw the text over it
-            draw.text(team_name_position, team_name, fill=text_color, font=team_name_font)
+            # Then draw the name text over it
+            draw.text(name_position, team_name, fill=text_color, font=team_name_font)
 
-        # Draw the date
-        # Example of adding date and season text
-        date_font = ImageFont.truetype(font_path, 40)
-        date_text = "MARCH 03 | 2024 NBA SEASON"
-        date_position = (thumbnail_width // 2, thumbnail_height - 50)
-        draw.text(date_position, date_text, fill="white", font=date_font, anchor="mm")
-        
+
+        # Assume we have the records for the two teams
+        team1_record = "25-10"
+        team2_record = "22-13"
+
+        # Set the font size for the records smaller than the team names
+        record_font_size = 120  # Adjust based on your preference
+        record_font = ImageFont.truetype(font_path, record_font_size)
+
+        # Use the textbbox method to get the bounding box of the record text, which gives you the dimensions
+        team1_record_bbox = draw.textbbox((0, 0), team1_record, font=record_font)
+        team2_record_bbox = draw.textbbox((0, 0), team2_record, font=record_font)
+
+        # Calculate the width of the text for each team's record from the bounding box
+        team1_record_width = team1_record_bbox[2] - team1_record_bbox[0]
+        team2_record_width = team2_record_bbox[2] - team2_record_bbox[0]
+
+        # Calculate new positions for the records to be centered in their respective halves of the thumbnail
+        team1_record_x = (half_width - team1_record_width) // 2
+        team2_record_x = half_width + (half_width - team2_record_width) // 2
+
+        # Update the Y positions if necessary to place them under the team names
+        team1_record_y = team1_name_position[1] + 250  # Adjust based on your preference and font size
+        team2_record_y = team2_name_position[1] + 250  # Adjust based on your preference and font size
+
+        # Update the record positions with the newly calculated positions
+        team1_record_position = (team1_record_x, team1_record_y)
+        team2_record_position = (team2_record_x, team2_record_y)
+
+        # Draw the team records with shadows
+        for record, record_position in [(team1_record, team1_record_position), (team2_record, team2_record_position)]:
+            # Calculate the shadow position for the record
+            shadow_position = (record_position[0] + shadow_offset[0], record_position[1] + shadow_offset[1])
+            
+            # Draw the shadow first
+            draw.text(shadow_position, record, fill=shadow_color, font=record_font)
+            
+            # Then draw the record text over it
+            draw.text(record_position, record, fill=text_color, font=record_font)
+
+
+                
         # Save the thumbnail
         thumbnail.save("nba_highlight_thumbnail.png")
 
