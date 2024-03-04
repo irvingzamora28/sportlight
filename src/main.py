@@ -24,7 +24,7 @@ from common.logger import logger
 from common.video_player import VideoPlayer
 from common.video_gui import BasketballVideoGUI
 from PIL import Image, ImageDraw, ImageFont
-
+import random
 import io
 
 OUTPUT_DIR = "output"
@@ -204,11 +204,160 @@ def main(
         #     team
         # )
         
-        imageUtilities = ImageUtilities()
+        # imageUtilities = ImageUtilities()
         
-        input_dir = "resources/image/nba/min/"
-        output_dir = "resources/image/nba/min/"
-        imageUtilities.make_image_transparent(input_dir, output_dir)
+        # input_dir = "resources/image/nba/min/"
+        # output_dir = "resources/image/nba/min/"
+        # imageUtilities.make_image_transparent(input_dir, output_dir)
+    
+        # Directory containing player images
+        player1_directory = "resources/image/nba/lac/leonard"
+        player2_directory = "resources/image/nba/min/edwards"
+
+        # List player image files
+        player1_images = os.listdir(player1_directory)
+        player2_images = os.listdir(player2_directory)
+
+        # Select a random player image
+        random_player1_image = random.choice(player1_images)
+        random_player2_image = random.choice(player2_images)
+
+        # Load random player images
+        player1_image = Image.open(os.path.join(player1_directory, random_player1_image))
+        player2_image = Image.open(os.path.join(player2_directory, random_player2_image))
+
+        # Load team logos
+        team1_logo = Image.open("resources/image/nba/lac/logo.png")
+        team2_logo = Image.open("resources/image/nba/min/logo.png")
+
+        # ... [Previous code up to the logo loading]
+
+        # Create a new image with black background
+        thumbnail_width = 1280
+        thumbnail_height = 720
+        half_width = thumbnail_width // 2
+        # Load your background image
+        background_image_path = 'resources/image/black-smoke.jpg'
+        background_image = Image.open(background_image_path)
+
+        # Resize the background to match your thumbnail size, if necessary
+        background_image = background_image.resize((thumbnail_width, thumbnail_height))
+
+        # Now use the background image as your thumbnail
+        thumbnail = background_image
+
+
+        # Calculate position and size for team logos
+        # Increase logo size as needed, for example
+        logo_width, logo_height = 800, 800  # Adjust size as needed
+        team1_logo_position = (thumbnail_width // 4 - logo_width // 2, thumbnail_height // 2 - logo_height // 2)
+        team2_logo_position = (3 * thumbnail_width // 4 - logo_width // 2, thumbnail_height // 2 - logo_height // 2)
+
+        # Resize and convert team logos to "RGBA" to ensure they have an alpha channel
+        team1_logo = team1_logo.resize((logo_width, logo_height)).convert("RGBA")
+        team2_logo = team2_logo.resize((logo_width, logo_height)).convert("RGBA")
+
+        # Make the logos semi-transparent by adjusting their alpha channel
+        team1_logo_alpha = team1_logo.split()[3].point(lambda p: p * 0.5)
+        team2_logo_alpha = team2_logo.split()[3].point(lambda p: p * 0.5)
+        team1_logo.putalpha(team1_logo_alpha)
+        team2_logo.putalpha(team2_logo_alpha)
+
+        # Paste team logos onto the thumbnail with their alpha masks
+        thumbnail.paste(team1_logo, team1_logo_position, team1_logo)
+        thumbnail.paste(team2_logo, team2_logo_position, team2_logo)
+
+        # Resize and center Player 1 in the left half
+        player1_resized, player1_position = resize_and_center(player1_image, half_width, thumbnail_height)
+
+        # Resize and center Player 2 in the right half
+        player2_resized, player2_position = resize_and_center(player2_image, half_width, thumbnail_height)
+
+        # Adjust player2_position to be in the right half
+        player2_position = (player2_position[0] + half_width, player2_position[1])
+
+        # Paste the resized and repositioned player images onto the thumbnail
+        thumbnail.paste(player1_resized, player1_position, player1_resized)
+        thumbnail.paste(player2_resized, player2_position, player2_resized)
+
+        # ... [Continue with the rest of your code for adding text and saving the thumbnail]
+
+
+        # Find the path to the Arial font file
+        font_path = None
+        possible_paths = [
+            "resources/fonts/MutantAcademyBB.ttf",  # Linux
+            "/Library/Fonts/Arial.ttf",                         # MacOS
+            "C:\\Windows\\Fonts\\arial.ttf",                    # Windows
+        ]
+
+        for path in possible_paths:
+            if os.path.exists(path):
+                font_path = path
+                break
+
+        if font_path is None:
+            raise FileNotFoundError("Arial font not found in expected locations.")
+
+        # Load the Arial font and draw the "vs" text with updated method
+        font = ImageFont.truetype(font_path, 300)
+        draw = ImageDraw.Draw(thumbnail)
+
+        # Set the text and shadow color
+        text_color = "white"
+        shadow_color = "black"
+
+        # Text to draw
+        text = "vs"
+
+        # Position of the shadow
+        shadow_offset = (8, 8)
+
+        # Draw shadow first
+        bbox = draw.textbbox((0, 0), text, font=font)
+        text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
+        text_position = ((thumbnail_width - text_width) // 2, (thumbnail_height - text_height) // 8)
+        shadow_position = (text_position[0] + shadow_offset[0], text_position[1] + shadow_offset[1])
+        draw.text(shadow_position, text, fill=shadow_color, font=font)
+
+        # Then draw the text over it
+        draw.text(text_position, text, fill=text_color, font=font)
+
+        # Draw the team names
+        team1_name = "LAC"
+        team2_name = "MIN"
+        team_name_font = ImageFont.truetype(font_path, 300)
+        team1_name_position = ((thumbnail_width - text_width) // 4 - 200, thumbnail_height - 400)
+        team2_name_position = (3 * (thumbnail_width - text_width) // 4 + 50, thumbnail_height - 400)
+        # Set shadow details
+        shadow_offset = (12, 12)
+        shadow_color = "black"
+
+        # Draw the team names with shadows
+        for team_name, team_name_position in [(team1_name, team1_name_position), (team2_name, team2_name_position)]:
+            # Calculate the bounding box for the text and the shadow position
+            bbox = draw.textbbox(team_name_position, team_name, font=team_name_font)
+            text_width = bbox[2] - bbox[0]
+            text_height = bbox[3] - bbox[1]
+            shadow_position = (team_name_position[0] + shadow_offset[0], team_name_position[1] + shadow_offset[1])
+            
+            # Draw the shadow first
+            draw.text(shadow_position, team_name, fill=shadow_color, font=team_name_font)
+            
+            # Then draw the text over it
+            draw.text(team_name_position, team_name, fill=text_color, font=team_name_font)
+
+        # Draw the date
+        # Example of adding date and season text
+        date_font = ImageFont.truetype(font_path, 40)
+        date_text = "MARCH 03 | 2024 NBA SEASON"
+        date_position = (thumbnail_width // 2, thumbnail_height - 50)
+        draw.text(date_position, date_text, fill="white", font=date_font, anchor="mm")
+        
+        # Save the thumbnail
+        thumbnail.save("nba_highlight_thumbnail.png")
+
 
 
         
@@ -237,6 +386,26 @@ def main(
     else:
         logger.console(f"Currently, we only support NBA. You entered: {league}")
 
+def resize_and_center(image, target_width, target_height):
+    # Calculate the new size to maintain the aspect ratio
+    original_width, original_height = image.size
+    ratio = min(target_width / original_width, target_height / original_height)
+    new_width = int(original_width * ratio)
+    new_height = int(original_height * ratio)
+    resized_image = image.resize((new_width, new_height), Image.LANCZOS)
+    
+    # Calculate the center position
+    center_x = (target_width - new_width) // 2
+    center_y = target_height - new_height
+    return resized_image, (center_x, center_y)
+
+def resize_image_to_fit(image, target_width, target_height):
+    original_width, original_height = image.size
+    ratio = min(target_width / original_width, target_height / original_height)
+    new_width = int(original_width * ratio)
+    new_height = int(original_height * ratio)
+    resized_image = image.resize((new_width, new_height), Image.LANCZOS)
+    return resized_image
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Sportlight Application")
