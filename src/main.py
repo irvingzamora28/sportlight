@@ -200,11 +200,12 @@ def main(
         #     words_to_exclude,
         #     keywords,
         #     max_games,
+        #     team
         # )
         
 
-        input_dir = "resources/image/players/phi/maxey/"
-        output_dir = "resources/image/players/phi/maxey/"
+        input_dir = "resources/image/players/min/towns/"
+        output_dir = "resources/image/players/min/towns/"
 
         for filename in os.listdir(input_dir):
             if filename.endswith(".png") or filename.endswith(".jpg") or filename.endswith(".jpeg"):
