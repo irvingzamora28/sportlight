@@ -30,6 +30,8 @@ class ImageUtilities:
         
         # Save the cropped image to the final output path
         cropped_image.save(output_path, "PNG")
+        # Remove temp image after cropping
+        os.remove(temp_path)
 
         print(f"Background removed and image cropped from {input_path} and saved to {output_path}")
 
