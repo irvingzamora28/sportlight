@@ -95,6 +95,38 @@ def process_game_data(
             json.dump(box_score_data, file, ensure_ascii=False, indent=4)
         logger.console(f"Data nba_box_score saved to {filename}")
 
+        home_team = game_data_processor.get_game_team_data(home=True)
+        away_team = game_data_processor.get_game_team_data(home=False)
+        # Check if home_team has the attribute "teamTricode", if so, print it
+        if "teamTricode" in home_team:
+            team1_slug = home_team["teamTricode"].lower()
+            logger.console(f"Home team tricode: {home_team['teamTricode']}")
+        if "teamTricode" in away_team:
+            logger.console(f"Away team tricode: {away_team['teamTricode']}")
+            team2_slug = away_team["teamTricode"].lower()
+        logger.console(f"Home team: {home_team}")
+        logger.console(f"Away team: {away_team}")
+        if "teamSubtitle" in home_team:
+            logger.console(f"Home team subtitle: {home_team['teamSubtitle']}")
+            team1_record = home_team["teamSubtitle"]
+        if "teamSubtitle" in away_team:
+            logger.console(f"Away team subtitle: {away_team['teamSubtitle']}")
+            team2_record = away_team["teamSubtitle"]
+        if "teamLeader" in home_team:
+            if "playerSlug" in home_team["teamLeader"]:
+                logger.console(
+                    f"Home team leader: {home_team['teamLeader']['playerSlug'].split('-', 1)[1].lower()}"
+                )
+                #Get everything after the first "-"
+                team1_player_slug = home_team["teamLeader"]["playerSlug"]
+                team1_player_slug = home_team["teamLeader"]["playerSlug"].split('-', 1)[1].lower()
+        if "teamLeader" in away_team:
+            if "playerSlug" in away_team["teamLeader"]:
+                logger.console(
+                    f"Away team leader: {away_team['teamLeader']['playerSlug'].split('-', 1)[1].lower()}"
+                )
+                team2_player_slug = away_team["teamLeader"]["playerSlug"].split('-', 1)[1].lower()
+                
         # If players is empty, get key players
         if not players:
             # Get key players
@@ -138,6 +170,15 @@ def process_game_data(
         VideoEditor.create_highlight_video(
             video_paths, f"{OUTPUT_NBA_VIDEOS_DIR}/{date}/{game_slug}", box_score_data
         )
+        # The game_slug has both teams, so we need to split it by the @
+        # game_slug_split = game_slug.split("@")
+        # team1_slug = game_slug_split[0]
+        # team2_slug = game_slug_split[1]
+        # logger.console(f"Team 1 slug: {team1_slug}")
+        # logger.console(f"Team 2 slug: {team2_slug}")
+        
+        thumbnail = ImageThumbnailCreator(team1_name=team1_slug, team2_name=team2_slug, player1=team1_player_slug, player2=team2_player_slug, team1_score=team1_record, team2_score=team2_record)
+        thumbnail.save()
 
 
 def handle_nba(
@@ -194,20 +235,23 @@ def main(
         # )
         # gui.run()
 
-        # handle_nba(
-        #     league,
-        #     date,
-        #     special_keywords,
-        #     players,
-        #     words_to_exclude,
-        #     keywords,
-        #     max_games,
-        #     team
-        # )
+        handle_nba(
+            league,
+            date,
+            special_keywords,
+            players,
+            words_to_exclude,
+            keywords,
+            max_games,
+            team
+        )
+        # MAKE IMAGES TRANSPARENT
+        # imageUtilities = ImageUtilities()
         
-        # Usage:
-        thumbnail = ImageThumbnailCreator(team1_name="LAC", team2_name="MIN", player1="leonard", player2="edwards", team1_score="25-10", team2_score="22-13")
-        thumbnail.save()
+        # input_dir = "resources/image/nba/lal/davis"
+        # output_dir = "resources/image/nba/lal/davis"
+        # imageUtilities.make_image_transparent(input_dir, output_dir)
+        
         # DETECT BASKETBALL
         # basketball_detections = imageprocessor.detect_video_basketball(input_video)
         # basketball_detections = imageprocessor.detect_video_basketball_pytorch(

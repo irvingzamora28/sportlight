@@ -14,7 +14,7 @@ import traceback
 import numpy as np
 from common.logger import logger
 
-MAX_DURATION = 8  # Maximum duration of each clip in seconds
+MAX_DURATION = 16  # Maximum duration of each clip in seconds
 
 
 class VideoEditor:

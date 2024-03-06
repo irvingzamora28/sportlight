@@ -24,6 +24,12 @@ class GameDataProcessor:
         Returns the id of the first game.
         """
         return JSONParser.extract_value(self.game_data[0], ["gameCard", "game_id"])
+    
+    def get_game_team_data(self, home=True):
+        """
+        Returns the home team data
+        """
+        return JSONParser.extract_value(self.game_data[0], ["gameCard", "home_team" if home else "away_team"])
 
     def get_actions(self, actions_properties_path):
         """
