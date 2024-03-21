@@ -235,22 +235,22 @@ def main(
         # )
         # gui.run()
 
-        handle_nba(
-            league,
-            date,
-            special_keywords,
-            players,
-            words_to_exclude,
-            keywords,
-            max_games,
-            team
-        )
+        # handle_nba(
+        #     league,
+        #     date,
+        #     special_keywords,
+        #     players,
+        #     words_to_exclude,
+        #     keywords,
+        #     max_games,
+        #     team
+        # )
         # MAKE IMAGES TRANSPARENT
-        # imageUtilities = ImageUtilities()
+        imageUtilities = ImageUtilities()
         
-        # input_dir = "resources/image/nba/lal/davis"
-        # output_dir = "resources/image/nba/lal/davis"
-        # imageUtilities.make_image_transparent(input_dir, output_dir)
+        input_dir = "resources/image/trivia"
+        output_dir = "resources/image/trivia"
+        imageUtilities.make_image_transparent(input_dir, output_dir, True)
         
         # DETECT BASKETBALL
         # basketball_detections = imageprocessor.detect_video_basketball(input_video)
